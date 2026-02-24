@@ -533,11 +533,8 @@ const INITIAL_BANNED = [
   { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly" },
   { name: "Samantha", boss: "Dr. Mike", avatarId: "gem" },
   { name: "Shadowfax", boss: "Kelsey", avatarId: "horse" },
-  { name: "Alexa", boss: "Jeff", avatarId: "blob" },
-  { name: "Siri", boss: "Tim", avatarId: "spark" },
-  { name: "Claude", boss: "Dario", avatarId: "ghost" },
-  { name: "Jarvis", boss: "Tony", avatarId: "robot" },
-  { name: "Gemini", boss: "Sundar", avatarId: "star" },
+  { name: "Claude", boss: "Dario (Anthropic)", avatarId: "ghost" },
+  { name: "Gemini", boss: "Sundar (Google)", avatarId: "star" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -931,12 +928,16 @@ function LandingScreen({ onStart }) {
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // AVATAR SELECTOR - Boss picks emoji, renders as 3D
+// Only shows AVAILABLE avatars (hides taken ones)
 // ═══════════════════════════════════════════════════════════════════════════════
 function AvatarSelector({ selected, onChange, takenAvatars = [] }) {
+  // Filter to only show available avatars
+  const availableAvatars = AVATAR_OPTIONS.filter(a => !takenAvatars.includes(a.id));
+  
   return (
     <div>
       <label style={{ display: "block", fontSize: 10, color: C.purple, letterSpacing: 2, marginBottom: 10 }}>
-        PICK YOUR AI'S LOOK
+        PICK YOUR AI'S LOOK ({availableAvatars.length} available)
       </label>
       <div style={{ 
         display: "grid", 
@@ -946,41 +947,32 @@ function AvatarSelector({ selected, onChange, takenAvatars = [] }) {
         borderRadius: 12,
         padding: 12,
         border: `2px solid ${C.purple}30`,
+        maxHeight: 280,
+        overflowY: "auto",
       }}>
-        {AVATAR_OPTIONS.map(avatar => {
-          const isTaken = takenAvatars.includes(avatar.id);
+        {availableAvatars.map(avatar => {
           const isSelected = selected === avatar.id;
           return (
             <button
               key={avatar.id}
               type="button"
-              onClick={() => !isTaken && onChange(avatar.id)}
-              disabled={isTaken}
+              onClick={() => onChange(avatar.id)}
               style={{
                 padding: 8,
-                background: isSelected ? `${C.purple}30` : isTaken ? "#1a1a1a" : "transparent",
+                background: isSelected ? `${C.purple}30` : "transparent",
                 border: isSelected ? `2px solid ${C.purple}` : "2px solid transparent",
                 borderRadius: 10,
-                cursor: isTaken ? "not-allowed" : "pointer",
-                opacity: isTaken ? 0.4 : 1,
+                cursor: "pointer",
                 position: "relative",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 4,
+                transition: "all 0.2s",
               }}
             >
               <Avatar3D avatarId={avatar.id} size={40} />
               <span style={{ fontSize: 9, color: C.textMuted }}>{avatar.name}</span>
-              {isTaken && (
-                <div style={{
-                  position: "absolute", top: 2, right: 2,
-                  background: C.error, borderRadius: "50%",
-                  width: 16, height: 16, display: "flex",
-                  alignItems: "center", justifyContent: "center",
-                  fontSize: 10, color: "#fff",
-                }}>✕</div>
-              )}
             </button>
           );
         })}
