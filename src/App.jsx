@@ -19,19 +19,359 @@ const C = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// SOUND EFFECTS
+// ═══════════════════════════════════════════════════════════════════════════════
+const MUSIC_URL = "https://cdn.pixabay.com/audio/2022/10/18/audio_2dca4e2a53.mp3";
+const WOOHOO_URL = "https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3";
+const BOO_URL = "https://cdn.pixabay.com/audio/2022/03/15/audio_8f10c53f23.mp3";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3D AVATAR DEFINITIONS - Clay/Pixar style
+// ═══════════════════════════════════════════════════════════════════════════════
+const AVATAR_OPTIONS = [
+  { id: "robot", emoji: "🤖", name: "Robot", color: "#4FC3F7" },
+  { id: "cat", emoji: "🐱", name: "Cat", color: "#FFB74D" },
+  { id: "horse", emoji: "🐴", name: "Horse", color: "#A1887F" },
+  { id: "owl", emoji: "🦉", name: "Owl", color: "#8D6E63" },
+  { id: "star", emoji: "⭐", name: "Star", color: "#FFD54F" },
+  { id: "blob", emoji: "🟣", name: "Blob", color: "#BA68C8" },
+  { id: "gem", emoji: "💎", name: "Crystal", color: "#4DD0E1" },
+  { id: "spark", emoji: "✨", name: "Spark", color: "#FFF176" },
+  { id: "ghost", emoji: "👻", name: "Ghost", color: "#E0E0E0" },
+  { id: "alien", emoji: "👽", name: "Alien", color: "#81C784" },
+  { id: "dragon", emoji: "🐲", name: "Dragon", color: "#EF5350" },
+  { id: "butterfly", emoji: "🦋", name: "Butterfly", color: "#7986CB" },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3D AVATAR SVG COMPONENT - Clay/Pixar style rendering
+// ═══════════════════════════════════════════════════════════════════════════════
+function Avatar3D({ avatarId, size = 60, dancing = false }) {
+  const avatar = AVATAR_OPTIONS.find(a => a.id === avatarId) || AVATAR_OPTIONS[0];
+  const color = avatar.color;
+  const darkColor = adjustBrightness(color, -30);
+  const lightColor = adjustBrightness(color, 40);
+  
+  const baseStyle = dancing ? {
+    animation: "avatarBounce 0.5s ease-in-out infinite alternate"
+  } : {};
+  
+  return (
+    <div style={{ width: size, height: size, ...baseStyle }}>
+      <svg viewBox="0 0 100 100" style={{ width: "100%", height: "100%" }}>
+        <defs>
+          {/* 3D Gradient for clay look */}
+          <radialGradient id={`grad-${avatarId}`} cx="35%" cy="35%">
+            <stop offset="0%" stopColor={lightColor} />
+            <stop offset="50%" stopColor={color} />
+            <stop offset="100%" stopColor={darkColor} />
+          </radialGradient>
+          {/* Shine highlight */}
+          <radialGradient id={`shine-${avatarId}`} cx="30%" cy="25%">
+            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#ffffff" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+          </radialGradient>
+          {/* Drop shadow */}
+          <filter id={`shadow-${avatarId}`}>
+            <feDropShadow dx="2" dy="4" stdDeviation="3" floodColor="#000" floodOpacity="0.3" />
+          </filter>
+        </defs>
+        
+        {avatarId === "robot" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Robot body */}
+            <rect x="25" y="40" width="50" height="50" rx="8" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="50" cy="40" rx="30" ry="25" fill={`url(#grad-${avatarId})`} />
+            {/* Eyes */}
+            <circle cx="38" cy="38" r="8" fill="#1a1a2e" />
+            <circle cx="62" cy="38" r="8" fill="#1a1a2e" />
+            <circle cx="40" cy="36" r="4" fill={C.neonBlue} />
+            <circle cx="64" cy="36" r="4" fill={C.neonBlue} />
+            {/* Antenna */}
+            <line x1="50" y1="15" x2="50" y2="25" stroke={color} strokeWidth="4" strokeLinecap="round" />
+            <circle cx="50" cy="12" r="5" fill={C.error} />
+            {/* Shine */}
+            <ellipse cx="35" cy="30" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "cat" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Face */}
+            <ellipse cx="50" cy="55" rx="35" ry="30" fill={`url(#grad-${avatarId})`} />
+            {/* Ears */}
+            <path d="M20,40 L30,15 L40,35 Z" fill={`url(#grad-${avatarId})`} />
+            <path d="M80,40 L70,15 L60,35 Z" fill={`url(#grad-${avatarId})`} />
+            <path d="M25,38 L32,22 L38,35 Z" fill="#FFD8B4" />
+            <path d="M75,38 L68,22 L62,35 Z" fill="#FFD8B4" />
+            {/* Eyes */}
+            <ellipse cx="35" cy="50" rx="8" ry="10" fill="#2a2a4a" />
+            <ellipse cx="65" cy="50" rx="8" ry="10" fill="#2a2a4a" />
+            <ellipse cx="37" cy="48" rx="4" ry="5" fill={C.plumbob} />
+            <ellipse cx="67" cy="48" rx="4" ry="5" fill={C.plumbob} />
+            {/* Nose */}
+            <ellipse cx="50" cy="62" rx="4" ry="3" fill="#FF9999" />
+            {/* Whiskers */}
+            <line x1="15" y1="58" x2="30" y2="60" stroke="#333" strokeWidth="1.5" />
+            <line x1="15" y1="65" x2="30" y2="65" stroke="#333" strokeWidth="1.5" />
+            <line x1="70" y1="60" x2="85" y2="58" stroke="#333" strokeWidth="1.5" />
+            <line x1="70" y1="65" x2="85" y2="65" stroke="#333" strokeWidth="1.5" />
+            {/* Shine */}
+            <ellipse cx="35" cy="40" rx="15" ry="10" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "horse" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Head */}
+            <ellipse cx="50" cy="50" rx="30" ry="35" fill={`url(#grad-${avatarId})`} />
+            {/* Snout */}
+            <ellipse cx="50" cy="70" rx="18" ry="12" fill={adjustBrightness(color, 20)} />
+            {/* Eyes */}
+            <ellipse cx="35" cy="42" rx="6" ry="8" fill="#2a2a4a" />
+            <ellipse cx="65" cy="42" rx="6" ry="8" fill="#2a2a4a" />
+            <circle cx="36" cy="40" r="3" fill="#ffffff" />
+            <circle cx="66" cy="40" r="3" fill="#ffffff" />
+            {/* Nostrils */}
+            <ellipse cx="42" cy="72" rx="3" ry="2" fill="#5D4037" />
+            <ellipse cx="58" cy="72" rx="3" ry="2" fill="#5D4037" />
+            {/* Ears */}
+            <ellipse cx="28" cy="22" rx="8" ry="12" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="72" cy="22" rx="8" ry="12" fill={`url(#grad-${avatarId})`} />
+            {/* Mane */}
+            <path d="M35,10 Q50,5 65,10 Q55,18 50,10 Q45,18 35,10" fill="#5D4037" />
+            {/* Shine */}
+            <ellipse cx="40" cy="35" rx="15" ry="10" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "owl" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Body */}
+            <ellipse cx="50" cy="60" rx="32" ry="30" fill={`url(#grad-${avatarId})`} />
+            {/* Head feathers */}
+            <ellipse cx="25" cy="30" rx="8" ry="15" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="75" cy="30" rx="8" ry="15" fill={`url(#grad-${avatarId})`} />
+            {/* Face disc */}
+            <ellipse cx="50" cy="45" rx="28" ry="25" fill={adjustBrightness(color, 30)} />
+            {/* Big eyes */}
+            <circle cx="38" cy="42" r="12" fill="#FFF9C4" />
+            <circle cx="62" cy="42" r="12" fill="#FFF9C4" />
+            <circle cx="38" cy="42" r="6" fill="#1a1a2e" />
+            <circle cx="62" cy="42" r="6" fill="#1a1a2e" />
+            <circle cx="40" cy="40" r="2" fill="#ffffff" />
+            <circle cx="64" cy="40" r="2" fill="#ffffff" />
+            {/* Beak */}
+            <path d="M45,55 L50,65 L55,55 Z" fill="#FF9800" />
+            {/* Shine */}
+            <ellipse cx="40" cy="35" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "star" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Star shape */}
+            <polygon 
+              points="50,5 61,38 95,38 68,60 79,95 50,73 21,95 32,60 5,38 39,38" 
+              fill={`url(#grad-${avatarId})`}
+            />
+            {/* Face */}
+            <circle cx="40" cy="45" r="5" fill="#2a2a4a" />
+            <circle cx="60" cy="45" r="5" fill="#2a2a4a" />
+            <circle cx="41" cy="44" r="2" fill="#ffffff" />
+            <circle cx="61" cy="44" r="2" fill="#ffffff" />
+            <path d="M42,58 Q50,65 58,58" fill="none" stroke="#FF9800" strokeWidth="3" strokeLinecap="round" />
+            {/* Shine */}
+            <ellipse cx="40" cy="30" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "blob" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Blob body */}
+            <ellipse cx="50" cy="55" rx="38" ry="35" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="30" cy="40" rx="12" ry="15" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="70" cy="40" rx="12" ry="15" fill={`url(#grad-${avatarId})`} />
+            {/* Eyes */}
+            <circle cx="38" cy="50" r="8" fill="#ffffff" />
+            <circle cx="62" cy="50" r="8" fill="#ffffff" />
+            <circle cx="40" cy="50" r="4" fill="#1a1a2e" />
+            <circle cx="64" cy="50" r="4" fill="#1a1a2e" />
+            <circle cx="41" cy="49" r="1.5" fill="#ffffff" />
+            <circle cx="65" cy="49" r="1.5" fill="#ffffff" />
+            {/* Smile */}
+            <path d="M40,68 Q50,78 60,68" fill="none" stroke="#7B1FA2" strokeWidth="3" strokeLinecap="round" />
+            {/* Shine */}
+            <ellipse cx="35" cy="35" rx="15" ry="12" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "gem" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Crystal shape */}
+            <polygon points="50,8 75,35 70,85 30,85 25,35" fill={`url(#grad-${avatarId})`} />
+            <polygon points="50,8 25,35 30,85 50,75" fill={adjustBrightness(color, -20)} fillOpacity="0.5" />
+            {/* Face */}
+            <circle cx="38" cy="50" r="5" fill="#ffffff" />
+            <circle cx="58" cy="50" r="5" fill="#ffffff" />
+            <circle cx="39" cy="49" r="2.5" fill="#0D47A1" />
+            <circle cx="59" cy="49" r="2.5" fill="#0D47A1" />
+            <path d="M42,65 Q50,72 58,65" fill="none" stroke="#0D47A1" strokeWidth="2.5" strokeLinecap="round" />
+            {/* Sparkles */}
+            <polygon points="20,20 22,25 27,25 23,28 25,33 20,30 15,33 17,28 13,25 18,25" fill="#ffffff" />
+            <polygon points="75,60 77,63 80,63 78,65 79,68 75,66 71,68 72,65 70,63 73,63" fill="#ffffff" />
+            {/* Shine */}
+            <polygon points="30,25 45,20 40,40 28,35" fill="#ffffff" fillOpacity="0.4" />
+          </g>
+        )}
+        
+        {avatarId === "spark" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Central glow */}
+            <circle cx="50" cy="50" r="25" fill={`url(#grad-${avatarId})`} />
+            {/* Spark rays */}
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
+              <line key={i}
+                x1={50 + Math.cos(angle * Math.PI / 180) * 25}
+                y1={50 + Math.sin(angle * Math.PI / 180) * 25}
+                x2={50 + Math.cos(angle * Math.PI / 180) * (i % 2 === 0 ? 45 : 38)}
+                y2={50 + Math.sin(angle * Math.PI / 180) * (i % 2 === 0 ? 45 : 38)}
+                stroke={color} strokeWidth={i % 2 === 0 ? "4" : "3"} strokeLinecap="round"
+              />
+            ))}
+            {/* Face */}
+            <circle cx="42" cy="45" r="4" fill="#F57F17" />
+            <circle cx="58" cy="45" r="4" fill="#F57F17" />
+            <path d="M43,55 Q50,62 57,55" fill="none" stroke="#F57F17" strokeWidth="2.5" strokeLinecap="round" />
+            {/* Shine */}
+            <ellipse cx="42" cy="40" rx="10" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "ghost" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Ghost body */}
+            <path d="M25,40 Q25,15 50,15 Q75,15 75,40 L75,80 Q70,75 65,80 Q60,75 55,80 Q50,75 45,80 Q40,75 35,80 Q30,75 25,80 Z" fill={`url(#grad-${avatarId})`} />
+            {/* Eyes */}
+            <ellipse cx="38" cy="42" rx="8" ry="10" fill="#1a1a2e" />
+            <ellipse cx="62" cy="42" rx="8" ry="10" fill="#1a1a2e" />
+            <circle cx="40" cy="40" r="3" fill="#ffffff" />
+            <circle cx="64" cy="40" r="3" fill="#ffffff" />
+            {/* Mouth */}
+            <ellipse cx="50" cy="60" rx="8" ry="5" fill="#1a1a2e" />
+            {/* Blush */}
+            <ellipse cx="28" cy="55" rx="5" ry="3" fill="#FFCDD2" opacity="0.6" />
+            <ellipse cx="72" cy="55" rx="5" ry="3" fill="#FFCDD2" opacity="0.6" />
+            {/* Shine */}
+            <ellipse cx="38" cy="28" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "alien" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Head */}
+            <ellipse cx="50" cy="50" rx="35" ry="40" fill={`url(#grad-${avatarId})`} />
+            {/* Big eyes */}
+            <ellipse cx="35" cy="45" rx="12" ry="15" fill="#1a1a2e" />
+            <ellipse cx="65" cy="45" rx="12" ry="15" fill="#1a1a2e" />
+            <ellipse cx="37" cy="43" rx="5" ry="6" fill="#E8F5E9" />
+            <ellipse cx="67" cy="43" rx="5" ry="6" fill="#E8F5E9" />
+            {/* Small mouth */}
+            <ellipse cx="50" cy="72" rx="4" ry="2" fill="#2E7D32" />
+            {/* Antenna */}
+            <line x1="35" y1="12" x2="35" y2="22" stroke={color} strokeWidth="3" strokeLinecap="round" />
+            <circle cx="35" cy="10" r="4" fill={C.plumbob} />
+            <line x1="65" y1="12" x2="65" y2="22" stroke={color} strokeWidth="3" strokeLinecap="round" />
+            <circle cx="65" cy="10" r="4" fill={C.plumbob} />
+            {/* Shine */}
+            <ellipse cx="38" cy="30" rx="15" ry="10" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "dragon" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Head */}
+            <ellipse cx="50" cy="55" rx="32" ry="28" fill={`url(#grad-${avatarId})`} />
+            {/* Snout */}
+            <ellipse cx="50" cy="70" rx="15" ry="10" fill={adjustBrightness(color, -15)} />
+            {/* Nostrils with smoke */}
+            <ellipse cx="43" cy="72" rx="3" ry="2" fill="#1a1a2e" />
+            <ellipse cx="57" cy="72" rx="3" ry="2" fill="#1a1a2e" />
+            {/* Eyes */}
+            <ellipse cx="35" cy="50" rx="8" ry="10" fill="#FFEB3B" />
+            <ellipse cx="65" cy="50" rx="8" ry="10" fill="#FFEB3B" />
+            <ellipse cx="36" cy="50" rx="3" ry="5" fill="#1a1a2e" />
+            <ellipse cx="66" cy="50" rx="3" ry="5" fill="#1a1a2e" />
+            {/* Horns */}
+            <path d="M20,35 Q15,15 25,25 L30,40" fill={adjustBrightness(color, -30)} />
+            <path d="M80,35 Q85,15 75,25 L70,40" fill={adjustBrightness(color, -30)} />
+            {/* Spikes */}
+            <polygon points="45,22 50,8 55,22" fill={adjustBrightness(color, -20)} />
+            {/* Shine */}
+            <ellipse cx="38" cy="40" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {avatarId === "butterfly" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Wings */}
+            <ellipse cx="25" cy="40" rx="22" ry="30" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="75" cy="40" rx="22" ry="30" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="25" cy="70" rx="18" ry="20" fill={adjustBrightness(color, -20)} />
+            <ellipse cx="75" cy="70" rx="18" ry="20" fill={adjustBrightness(color, -20)} />
+            {/* Wing patterns */}
+            <circle cx="25" cy="35" r="8" fill={C.neonBlue} opacity="0.6" />
+            <circle cx="75" cy="35" r="8" fill={C.neonBlue} opacity="0.6" />
+            <circle cx="25" cy="70" r="6" fill={C.neon} opacity="0.5" />
+            <circle cx="75" cy="70" r="6" fill={C.neon} opacity="0.5" />
+            {/* Body */}
+            <ellipse cx="50" cy="50" rx="8" ry="35" fill="#5C6BC0" />
+            {/* Head */}
+            <circle cx="50" cy="18" r="10" fill="#5C6BC0" />
+            {/* Eyes */}
+            <circle cx="46" cy="16" r="3" fill="#1a1a2e" />
+            <circle cx="54" cy="16" r="3" fill="#1a1a2e" />
+            <circle cx="47" cy="15" r="1" fill="#ffffff" />
+            <circle cx="55" cy="15" r="1" fill="#ffffff" />
+            {/* Antennae */}
+            <path d="M45,10 Q40,2 35,5" fill="none" stroke="#5C6BC0" strokeWidth="2" strokeLinecap="round" />
+            <path d="M55,10 Q60,2 65,5" fill="none" stroke="#5C6BC0" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="35" cy="5" r="3" fill={C.neon} />
+            <circle cx="65" cy="5" r="3" fill={C.neon} />
+            {/* Shine */}
+            <ellipse cx="20" cy="30" rx="8" ry="6" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
+// Helper function to adjust color brightness
+function adjustBrightness(hex, percent) {
+  const num = parseInt(hex.replace("#", ""), 16);
+  const amt = Math.round(2.55 * percent);
+  const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+  const G = Math.max(0, Math.min(255, ((num >> 8) & 0x00FF) + amt));
+  const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+  return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // INITIAL BANNED NAMES WITH BOSSES
 // ═══════════════════════════════════════════════════════════════════════════════
 const INITIAL_BANNED = [
-  { name: "Cody", boss: "Shawn", avatarDesc: "A friendly robot with blue eyes" },
-  { name: "Kitty", boss: "Cat", avatarDesc: "A cute cat with whiskers" },
-  { name: "Mikala", boss: "Dr. Novak", avatarDesc: "A stylish blonde professional" },
-  { name: "Samantha", boss: "Dr. Mike", avatarDesc: "An elegant AI assistant" },
-  { name: "Shadowfax", boss: "Kelsey", avatarDesc: "A majestic white horse" },
-  { name: "Alexa", boss: "Jeff", avatarDesc: "A glowing blue orb" },
-  { name: "Siri", boss: "Tim", avatarDesc: "A colorful swirl" },
-  { name: "Claude", boss: "Dario", avatarDesc: "An orange friendly blob" },
-  { name: "Jarvis", boss: "Tony", avatarDesc: "A sleek iron helmet" },
-  { name: "Gemini", boss: "Sundar", avatarDesc: "Twin stars orbiting" },
+  { name: "Cody", boss: "Shawn", avatarId: "robot" },
+  { name: "Kitty", boss: "Cat", avatarId: "cat" },
+  { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly" },
+  { name: "Samantha", boss: "Dr. Mike", avatarId: "gem" },
+  { name: "Shadowfax", boss: "Kelsey", avatarId: "horse" },
+  { name: "Alexa", boss: "Jeff", avatarId: "blob" },
+  { name: "Siri", boss: "Tim", avatarId: "spark" },
+  { name: "Claude", boss: "Dario", avatarId: "ghost" },
+  { name: "Jarvis", boss: "Tony", avatarId: "robot" },
+  { name: "Gemini", boss: "Sundar", avatarId: "star" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -158,7 +498,6 @@ function ClubBuilding() {
 // BOUNCER SVG (Big tough guy with sunglasses)
 // ═══════════════════════════════════════════════════════════════════════════════
 function BouncerSVG({ mood = "neutral" }) {
-  const moodColors = { neutral: "#333", angry: "#8B0000", happy: "#228B22" };
   const auraColor = mood === "angry" ? C.error : mood === "happy" ? C.plumbob : C.neonBlue;
   
   return (
@@ -276,16 +615,78 @@ function LandingScreen({ onStart }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// AVATAR SELECTOR - Boss picks emoji, renders as 3D
+// ═══════════════════════════════════════════════════════════════════════════════
+function AvatarSelector({ selected, onChange, takenAvatars = [] }) {
+  return (
+    <div>
+      <label style={{ display: "block", fontSize: 10, color: C.purple, letterSpacing: 2, marginBottom: 10 }}>
+        PICK YOUR AI'S LOOK
+      </label>
+      <div style={{ 
+        display: "grid", 
+        gridTemplateColumns: "repeat(4, 1fr)", 
+        gap: 8,
+        background: C.bgLight,
+        borderRadius: 12,
+        padding: 12,
+        border: `2px solid ${C.purple}30`,
+      }}>
+        {AVATAR_OPTIONS.map(avatar => {
+          const isTaken = takenAvatars.includes(avatar.id);
+          const isSelected = selected === avatar.id;
+          return (
+            <button
+              key={avatar.id}
+              type="button"
+              onClick={() => !isTaken && onChange(avatar.id)}
+              disabled={isTaken}
+              style={{
+                padding: 8,
+                background: isSelected ? `${C.purple}30` : isTaken ? "#1a1a1a" : "transparent",
+                border: isSelected ? `2px solid ${C.purple}` : "2px solid transparent",
+                borderRadius: 10,
+                cursor: isTaken ? "not-allowed" : "pointer",
+                opacity: isTaken ? 0.4 : 1,
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <Avatar3D avatarId={avatar.id} size={40} />
+              <span style={{ fontSize: 9, color: C.textMuted }}>{avatar.name}</span>
+              {isTaken && (
+                <div style={{
+                  position: "absolute", top: 2, right: 2,
+                  background: C.error, borderRadius: "50%",
+                  width: 16, height: 16, display: "flex",
+                  alignItems: "center", justifyContent: "center",
+                  fontSize: 10, color: "#fff",
+                }}>✕</div>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // BOUNCER SCREEN
 // ═══════════════════════════════════════════════════════════════════════════════
-function BouncerScreen({ bannedList, onApproved }) {
+function BouncerScreen({ bannedList, onApproved, playSound }) {
   const [aiName, setAiName] = useState("");
   const [bossName, setBossName] = useState("");
-  const [avatarSuggestion, setAvatarSuggestion] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState("");
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState(null);
   const [bouncerMood, setBouncerMood] = useState("neutral");
   const [bouncerLine, setBouncerLine] = useState("Names. AI and yours. Now.");
+  
+  const takenAvatars = bannedList.map(b => b.avatarId);
   
   const checkName = () => {
     if (!aiName.trim() || !bossName.trim()) return;
@@ -298,22 +699,24 @@ function BouncerScreen({ bannedList, onApproved }) {
         setBouncerLine(REJECTION_LINES[Math.floor(Math.random() * REJECTION_LINES.length)]);
         setBouncerMood("angry");
         setResult("rejected");
+        playSound("boo");
       } else {
         setBouncerLine(APPROVAL_LINES[Math.floor(Math.random() * APPROVAL_LINES.length)]);
         setBouncerMood("happy");
         setResult("approved");
+        playSound("woohoo");
       }
       setChecking(false);
     }, 2000);
   };
   
   const handleConfirm = () => {
-    if (!avatarSuggestion.trim()) return;
-    onApproved({ name: aiName.trim(), boss: bossName.trim(), avatarDesc: avatarSuggestion.trim() });
+    if (!selectedAvatar) return;
+    onApproved({ name: aiName.trim(), boss: bossName.trim(), avatarId: selectedAvatar });
   };
   
   const reset = () => {
-    setResult(null); setAiName(""); setBossName(""); setAvatarSuggestion("");
+    setResult(null); setAiName(""); setBossName(""); setSelectedAvatar("");
     setBouncerMood("neutral"); setBouncerLine("Names. AI and yours. Now.");
   };
   
@@ -379,28 +782,33 @@ function BouncerScreen({ bannedList, onApproved }) {
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
               <p style={{ color: C.success, fontSize: 16, fontWeight: 600, marginBottom: 6 }}>"{aiName}" is ORIGINAL!</p>
-              <p style={{ color: C.textMuted, fontSize: 12, marginBottom: 16 }}>Describe your AI's avatar to enter:</p>
+              <p style={{ color: C.textMuted, fontSize: 12, marginBottom: 16 }}>Now pick your AI's avatar to enter:</p>
               
-              <textarea
-                value={avatarSuggestion}
-                onChange={e => setAvatarSuggestion(e.target.value)}
-                placeholder="e.g., A cute purple robot with sparkly eyes, A wise owl wearing glasses..."
-                style={{
-                  width: "100%", padding: 12, fontSize: 14, background: C.bgLight,
-                  border: `2px solid ${C.purple}40`, borderRadius: 8, color: C.text,
-                  boxSizing: "border-box", minHeight: 70, resize: "none", fontFamily: "inherit",
-                }}
+              <AvatarSelector 
+                selected={selectedAvatar} 
+                onChange={setSelectedAvatar}
+                takenAvatars={takenAvatars}
               />
+              
+              {selectedAvatar && (
+                <div style={{ marginTop: 16, padding: 12, background: C.bgLight, borderRadius: 10, display: "flex", alignItems: "center", gap: 12 }}>
+                  <Avatar3D avatarId={selectedAvatar} size={50} />
+                  <div style={{ textAlign: "left" }}>
+                    <div style={{ fontWeight: 600, color: C.text }}>{aiName}</div>
+                    <div style={{ fontSize: 12, color: C.gold }}>Boss: {bossName}</div>
+                  </div>
+                </div>
+              )}
               
               <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
                 <button type="button" onClick={reset} style={{ flex: 1, padding: 12, background: C.bgLight, border: `1px solid ${C.textMuted}`, borderRadius: 8, color: C.textMuted, cursor: "pointer" }}>
                   Cancel
                 </button>
-                <button type="button" onClick={handleConfirm} disabled={!avatarSuggestion.trim()} style={{
+                <button type="button" onClick={handleConfirm} disabled={!selectedAvatar} style={{
                   flex: 1, padding: 12,
-                  background: avatarSuggestion.trim() ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
-                  border: "none", borderRadius: 8, color: avatarSuggestion.trim() ? C.bg : C.textMuted,
-                  fontWeight: 700, cursor: avatarSuggestion.trim() ? "pointer" : "not-allowed",
+                  background: selectedAvatar ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
+                  border: "none", borderRadius: 8, color: selectedAvatar ? C.bg : C.textMuted,
+                  fontWeight: 700, cursor: selectedAvatar ? "pointer" : "not-allowed",
                 }}>
                   🎉 ENTER!
                 </button>
@@ -457,15 +865,8 @@ function ClubInterior({ bannedList, newMember, onBack }) {
               transform: hoveredIdx === idx ? "scale(1.1)" : "scale(1)", transition: "transform 0.2s",
             }}
           >
-            <div style={{ fontSize: 32, marginBottom: 6 }}>
-              {member.avatarDesc?.includes("robot") ? "🤖" : 
-               member.avatarDesc?.includes("cat") ? "🐱" :
-               member.avatarDesc?.includes("horse") ? "🐴" :
-               member.avatarDesc?.includes("orb") || member.avatarDesc?.includes("circle") ? "🔵" :
-               member.avatarDesc?.includes("owl") ? "🦉" :
-               member.avatarDesc?.includes("star") ? "⭐" : "✨"}
-            </div>
-            <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{member.name}</div>
+            <Avatar3D avatarId={member.avatarId || "spark"} size={50} dancing={true} />
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.text, marginTop: 6 }}>{member.name}</div>
             
             {hoveredIdx === idx && (
               <div style={{
@@ -475,7 +876,6 @@ function ClubInterior({ bannedList, newMember, onBack }) {
               }}>
                 <div style={{ fontWeight: 700, color: C.text, fontSize: 13 }}>{member.name}</div>
                 <div style={{ color: C.gold, fontSize: 10, marginTop: 3 }}>Boss: {member.boss}</div>
-                <div style={{ color: C.textMuted, fontSize: 9, marginTop: 3, maxWidth: 150, whiteSpace: "normal" }}>{member.avatarDesc}</div>
               </div>
             )}
           </div>
@@ -502,17 +902,13 @@ function ClubInterior({ bannedList, newMember, onBack }) {
       
       <style>{`
         @keyframes dance { 0% { transform: translateY(0) rotate(-2deg); } 100% { transform: translateY(-8px) rotate(2deg); } }
+        @keyframes avatarBounce { 0% { transform: scale(1); } 100% { transform: scale(1.05) translateY(-2px); } }
         @keyframes spin { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
         @keyframes discoLights { 0% { opacity: 0.6; } 100% { opacity: 1; } }
       `}</style>
     </div>
   );
 }
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// TECHNO MUSIC
-// ═══════════════════════════════════════════════════════════════════════════════
-const TECHNO_MUSIC_URL = "https://cdn.pixabay.com/audio/2022/08/02/audio_54ca0ffa52.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
@@ -522,22 +918,72 @@ export default function App() {
   const [bannedList, setBannedList] = useState(INITIAL_BANNED);
   const [newMember, setNewMember] = useState(null);
   const [muted, setMuted] = useState(false);
+  const [audioStarted, setAudioStarted] = useState(false);
   const audioRef = useRef(null);
+  const woohooRef = useRef(null);
+  const booRef = useRef(null);
   
+  // Initialize audio elements
   useEffect(() => {
-    const audio = new Audio(TECHNO_MUSIC_URL);
-    audio.loop = true; audio.volume = 0; audio.preload = "auto";
+    // Main music
+    const audio = new Audio(MUSIC_URL);
+    audio.loop = true;
+    audio.volume = 0;
+    audio.preload = "auto";
     audioRef.current = audio;
-    return () => { audio.pause(); audio.src = ""; };
+    
+    // Sound effects
+    const woohoo = new Audio(WOOHOO_URL);
+    woohoo.preload = "auto";
+    woohoo.volume = 0.7;
+    woohooRef.current = woohoo;
+    
+    const boo = new Audio(BOO_URL);
+    boo.preload = "auto";
+    boo.volume = 0.6;
+    booRef.current = boo;
+    
+    return () => {
+      audio.pause();
+      audio.src = "";
+    };
   }, []);
   
+  // Update music volume based on screen
   useEffect(() => {
-    if (!audioRef.current) return;
-    audioRef.current.volume = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.12 : 0.35;
-  }, [screen, muted]);
+    if (!audioRef.current || !audioStarted) return;
+    const targetVolume = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.15 : 0.4;
+    audioRef.current.volume = targetVolume;
+  }, [screen, muted, audioStarted]);
   
-  const handleStart = () => {
-    if (audioRef.current) audioRef.current.play().catch(() => {});
+  const playSound = (type) => {
+    if (muted) return;
+    try {
+      if (type === "woohoo" && woohooRef.current) {
+        woohooRef.current.currentTime = 0;
+        woohooRef.current.play().catch(() => {});
+      } else if (type === "boo" && booRef.current) {
+        booRef.current.currentTime = 0;
+        booRef.current.play().catch(() => {});
+      }
+    } catch (e) {
+      console.log("Sound play failed:", e);
+    }
+  };
+  
+  const handleStart = async () => {
+    // Start music on first user interaction
+    if (audioRef.current && !audioStarted) {
+      try {
+        await audioRef.current.play();
+        setAudioStarted(true);
+      } catch (e) {
+        console.log("Music autoplay blocked:", e);
+        // Try again with user gesture
+        audioRef.current.play().catch(() => {});
+        setAudioStarted(true);
+      }
+    }
     setScreen("bouncer");
   };
   
@@ -548,14 +994,27 @@ export default function App() {
   };
   
   const MuteBtn = () => screen !== "landing" && (
-    <button type="button" onClick={() => setMuted(!muted)} style={{
-      position: "fixed", bottom: 20, right: 20, zIndex: 1000,
-      width: 44, height: 44, borderRadius: "50%", background: "rgba(0,0,0,0.7)",
-      border: `2px solid ${C.plumbob}`, color: C.plumbob, fontSize: 18, cursor: "pointer",
-    }}>{muted ? "🔇" : "🔊"}</button>
+    <button 
+      type="button" 
+      onClick={() => {
+        setMuted(!muted);
+        // If unmuting and audio hasn't started, try to start it
+        if (muted && audioRef.current && !audioStarted) {
+          audioRef.current.play().catch(() => {});
+          setAudioStarted(true);
+        }
+      }} 
+      style={{
+        position: "fixed", bottom: 20, right: 20, zIndex: 1000,
+        width: 44, height: 44, borderRadius: "50%", background: "rgba(0,0,0,0.7)",
+        border: `2px solid ${C.plumbob}`, color: C.plumbob, fontSize: 18, cursor: "pointer",
+      }}
+    >
+      {muted ? "🔇" : "🔊"}
+    </button>
   );
   
   if (screen === "landing") return <LandingScreen onStart={handleStart} />;
   if (screen === "club") return <><ClubInterior bannedList={bannedList} newMember={newMember} onBack={() => { setNewMember(null); setScreen("bouncer"); }} /><MuteBtn /></>;
-  return <><BouncerScreen bannedList={bannedList} onApproved={handleApproved} /><MuteBtn /></>;
+  return <><BouncerScreen bannedList={bannedList} onApproved={handleApproved} playSound={playSound} /><MuteBtn /></>;
 }
