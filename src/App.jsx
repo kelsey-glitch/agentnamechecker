@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// DESIGN TOKENS - SIMS INSPIRED
+// DESIGN TOKENS
 // ═══════════════════════════════════════════════════════════════════════════════
 const C = {
   bg: "#1a1a2e",
   bgLight: "#16213e",
   bgCard: "#0f3460",
-  plumbob: "#39FF14", // Classic Sims green
-  plumbobGlow: "#39FF1450",
+  plumbob: "#39FF14",
   gold: "#FFD700",
   velvet: "#8B0000",
   neon: "#FF1493",
@@ -20,251 +19,249 @@ const C = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// INITIAL BANNED NAMES
+// 3D AVATAR COLORS (soft, clay-like)
 // ═══════════════════════════════════════════════════════════════════════════════
-const INITIAL_BANNED = [
-  { name: "Cody", avatar: "🤖", desc: "Generic Tech Bro", shirt: "I ❤️ AI", mood: "Confident" },
-  { name: "Kitty", avatar: "🐱", desc: "The Cat", shirt: "Meow-chine Learning", mood: "Playful" },
-  { name: "Mikala", avatar: "👩‍💼", desc: "Nice Blonde", shirt: "Chief Vibes Officer", mood: "Ambitious" },
-  { name: "Samantha", avatar: "👩‍💻", desc: "CEO Assistant", shirt: "Her (2013)", mood: "Romantic" },
-  { name: "Shadowfax", avatar: "🐴", desc: "White Horse", shirt: "Lord of the Prompts", mood: "Majestic" },
-  { name: "Alexa", avatar: "🔵", desc: "Blue Circle", shirt: "Always Listening", mood: "Attentive" },
-  { name: "Siri", avatar: "🍎", desc: "Apple's Finest", shirt: "Sorry, I didn't get that", mood: "Confused" },
-  { name: "Cortana", avatar: "💜", desc: "Halo Queen", shirt: "RIP 2023", mood: "Nostalgic" },
-  { name: "Jarvis", avatar: "🦾", desc: "Iron Man's Butler", shirt: "Sir, this is a Wendy's", mood: "Witty" },
-  { name: "Claude", avatar: "🧡", desc: "Orange Anthropic", shirt: "Constitutional AI", mood: "Thoughtful" },
-  { name: "Gemini", avatar: "♊", desc: "Google's Twin", shirt: "We have GPT at home", mood: "Competitive" },
-  { name: "Copilot", avatar: "✈️", desc: "Microsoft's Co-", shirt: "Tab Complete Me", mood: "Helpful" },
+const AVATAR_COLORS = [
+  { base: "#A8D5E5", shadow: "#7FB3C7", highlight: "#C5E8F2" }, // Soft blue
+  { base: "#F5B7B1", shadow: "#E59086", highlight: "#FADBD8" }, // Soft pink
+  { base: "#ABEBC6", shadow: "#82D9A0", highlight: "#D5F5E3" }, // Soft green
+  { base: "#F9E79F", shadow: "#F4D03F", highlight: "#FCF3CF" }, // Soft yellow
+  { base: "#D7BDE2", shadow: "#BB8FCE", highlight: "#E8DAEF" }, // Soft purple
+  { base: "#F5CBA7", shadow: "#EB984E", highlight: "#FDEBD0" }, // Soft orange
+  { base: "#AED6F1", shadow: "#85C1E9", highlight: "#D6EAF8" }, // Sky blue
+  { base: "#F1948A", shadow: "#E74C3C", highlight: "#FADBD8" }, // Coral
 ];
 
-const MOODS = ["Confident", "Playful", "Ambitious", "Creative", "Bold", "Mysterious", "Energetic", "Chill"];
+// ═══════════════════════════════════════════════════════════════════════════════
+// INITIAL BANNED NAMES WITH BOSSES
+// ═══════════════════════════════════════════════════════════════════════════════
+const INITIAL_BANNED = [
+  { name: "Cody", boss: "Shawn", type: "robot", colorIdx: 0 },
+  { name: "Kitty", boss: "Cat", type: "cat", colorIdx: 1 },
+  { name: "Mikala", boss: "Dr. Novak", type: "person", colorIdx: 2 },
+  { name: "Samantha", boss: "Dr. Mike", type: "person", colorIdx: 3 },
+  { name: "Shadowfax", boss: "Kelsey", type: "horse", colorIdx: 4 },
+  { name: "Alexa", boss: "Jeff", type: "circle", colorIdx: 5 },
+  { name: "Siri", boss: "Tim", type: "circle", colorIdx: 6 },
+  { name: "Claude", boss: "Dario", type: "blob", colorIdx: 7 },
+  { name: "Jarvis", boss: "Tony", type: "robot", colorIdx: 0 },
+  { name: "Gemini", boss: "Sundar", type: "blob", colorIdx: 1 },
+];
+
+const AVATAR_TYPES = ["robot", "cat", "horse", "person", "circle", "blob", "star", "heart"];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BOUNCER RESPONSES
+// 3D AVATAR COMPONENT (CSS-based clay style)
+// ═══════════════════════════════════════════════════════════════════════════════
+function Avatar3D({ type = "blob", colorIdx = 0, size = 80, dancing = false }) {
+  const colors = AVATAR_COLORS[colorIdx % AVATAR_COLORS.length];
+  
+  const baseStyle = {
+    width: size,
+    height: size,
+    position: "relative",
+    filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
+    animation: dancing ? "dance3d 0.6s ease-in-out infinite alternate" : "none",
+  };
+  
+  // Different shapes based on type
+  const shapes = {
+    robot: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <linearGradient id={`grad-${colorIdx}-robot`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="50%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </linearGradient>
+        </defs>
+        {/* Body */}
+        <rect x="25" y="35" width="50" height="50" rx="8" fill={`url(#grad-${colorIdx}-robot)`} />
+        {/* Head */}
+        <rect x="30" y="10" width="40" height="30" rx="6" fill={`url(#grad-${colorIdx}-robot)`} />
+        {/* Eyes */}
+        <circle cx="40" cy="22" r="5" fill="#333" />
+        <circle cx="60" cy="22" r="5" fill="#333" />
+        <circle cx="42" cy="20" r="2" fill="#fff" />
+        <circle cx="62" cy="20" r="2" fill="#fff" />
+        {/* Antenna */}
+        <line x1="50" y1="10" x2="50" y2="2" stroke={colors.shadow} strokeWidth="3" strokeLinecap="round" />
+        <circle cx="50" cy="2" r="4" fill={colors.highlight} />
+      </svg>
+    ),
+    cat: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <linearGradient id={`grad-${colorIdx}-cat`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="50%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </linearGradient>
+        </defs>
+        {/* Ears */}
+        <polygon points="20,35 30,10 40,35" fill={`url(#grad-${colorIdx}-cat)`} />
+        <polygon points="60,35 70,10 80,35" fill={`url(#grad-${colorIdx}-cat)`} />
+        {/* Head */}
+        <ellipse cx="50" cy="55" rx="35" ry="32" fill={`url(#grad-${colorIdx}-cat)`} />
+        {/* Eyes */}
+        <ellipse cx="38" cy="50" rx="8" ry="10" fill="#333" />
+        <ellipse cx="62" cy="50" rx="8" ry="10" fill="#333" />
+        <ellipse cx="40" cy="48" rx="3" ry="4" fill="#fff" />
+        <ellipse cx="64" cy="48" rx="3" ry="4" fill="#fff" />
+        {/* Nose */}
+        <ellipse cx="50" cy="62" rx="4" ry="3" fill={colors.shadow} />
+        {/* Whiskers */}
+        <line x1="20" y1="58" x2="35" y2="60" stroke={colors.shadow} strokeWidth="1.5" />
+        <line x1="20" y1="65" x2="35" y2="65" stroke={colors.shadow} strokeWidth="1.5" />
+        <line x1="65" y1="60" x2="80" y2="58" stroke={colors.shadow} strokeWidth="1.5" />
+        <line x1="65" y1="65" x2="80" y2="65" stroke={colors.shadow} strokeWidth="1.5" />
+      </svg>
+    ),
+    horse: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <linearGradient id={`grad-${colorIdx}-horse`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="50%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </linearGradient>
+        </defs>
+        {/* Mane */}
+        <path d="M55,15 Q65,5 60,20 Q70,15 65,30 Q75,25 68,40" fill="none" stroke={colors.shadow} strokeWidth="6" strokeLinecap="round" />
+        {/* Head */}
+        <ellipse cx="45" cy="45" rx="25" ry="30" fill={`url(#grad-${colorIdx}-horse)`} />
+        {/* Snout */}
+        <ellipse cx="35" cy="60" rx="15" ry="18" fill={`url(#grad-${colorIdx}-horse)`} />
+        {/* Eye */}
+        <circle cx="50" cy="38" r="6" fill="#333" />
+        <circle cx="52" cy="36" r="2" fill="#fff" />
+        {/* Nostril */}
+        <circle cx="28" cy="62" r="3" fill={colors.shadow} />
+        {/* Ear */}
+        <ellipse cx="55" cy="20" rx="6" ry="12" fill={`url(#grad-${colorIdx}-horse)`} />
+      </svg>
+    ),
+    person: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <linearGradient id={`grad-${colorIdx}-person`} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="50%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </linearGradient>
+        </defs>
+        {/* Hair */}
+        <ellipse cx="50" cy="30" rx="28" ry="25" fill={colors.shadow} />
+        {/* Face */}
+        <ellipse cx="50" cy="45" rx="25" ry="28" fill="#FDBF9E" />
+        {/* Eyes */}
+        <circle cx="40" cy="42" r="4" fill="#333" />
+        <circle cx="60" cy="42" r="4" fill="#333" />
+        <circle cx="41" cy="41" r="1.5" fill="#fff" />
+        <circle cx="61" cy="41" r="1.5" fill="#fff" />
+        {/* Smile */}
+        <path d="M40,55 Q50,62 60,55" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" />
+        {/* Body */}
+        <ellipse cx="50" cy="90" rx="22" ry="18" fill={`url(#grad-${colorIdx}-person)`} />
+      </svg>
+    ),
+    circle: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <radialGradient id={`grad-${colorIdx}-circle`} cx="30%" cy="30%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="70%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="40" fill={`url(#grad-${colorIdx}-circle)`} />
+        {/* Eyes */}
+        <circle cx="38" cy="45" r="6" fill="#333" />
+        <circle cx="62" cy="45" r="6" fill="#333" />
+        <circle cx="40" cy="43" r="2" fill="#fff" />
+        <circle cx="64" cy="43" r="2" fill="#fff" />
+        {/* Smile */}
+        <path d="M35,60 Q50,72 65,60" fill="none" stroke="#333" strokeWidth="3" strokeLinecap="round" />
+      </svg>
+    ),
+    blob: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <radialGradient id={`grad-${colorIdx}-blob`} cx="30%" cy="30%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="70%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </radialGradient>
+        </defs>
+        <path d="M50,10 Q80,20 85,50 Q80,80 50,90 Q20,80 15,50 Q20,20 50,10" fill={`url(#grad-${colorIdx}-blob)`} />
+        {/* Eyes */}
+        <circle cx="38" cy="45" r="5" fill="#333" />
+        <circle cx="62" cy="45" r="5" fill="#333" />
+        <circle cx="40" cy="43" r="2" fill="#fff" />
+        <circle cx="64" cy="43" r="2" fill="#fff" />
+        {/* Cute blush */}
+        <ellipse cx="30" cy="55" rx="6" ry="3" fill="#FFB6C1" opacity="0.5" />
+        <ellipse cx="70" cy="55" rx="6" ry="3" fill="#FFB6C1" opacity="0.5" />
+      </svg>
+    ),
+    star: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <radialGradient id={`grad-${colorIdx}-star`} cx="30%" cy="30%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="70%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </radialGradient>
+        </defs>
+        <polygon points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35" fill={`url(#grad-${colorIdx}-star)`} />
+        {/* Eyes */}
+        <circle cx="42" cy="45" r="4" fill="#333" />
+        <circle cx="58" cy="45" r="4" fill="#333" />
+        <circle cx="43" cy="44" r="1.5" fill="#fff" />
+        <circle cx="59" cy="44" r="1.5" fill="#fff" />
+        {/* Smile */}
+        <path d="M44,55 Q50,60 56,55" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" />
+      </svg>
+    ),
+    heart: (
+      <svg viewBox="0 0 100 100" style={baseStyle}>
+        <defs>
+          <radialGradient id={`grad-${colorIdx}-heart`} cx="30%" cy="30%">
+            <stop offset="0%" stopColor={colors.highlight} />
+            <stop offset="70%" stopColor={colors.base} />
+            <stop offset="100%" stopColor={colors.shadow} />
+          </radialGradient>
+        </defs>
+        <path d="M50,88 C20,60 5,40 25,25 C40,15 50,30 50,30 C50,30 60,15 75,25 C95,40 80,60 50,88" fill={`url(#grad-${colorIdx}-heart)`} />
+        {/* Eyes */}
+        <circle cx="38" cy="45" r="4" fill="#333" />
+        <circle cx="62" cy="45" r="4" fill="#333" />
+        <circle cx="39" cy="44" r="1.5" fill="#fff" />
+        <circle cx="63" cy="44" r="1.5" fill="#fff" />
+      </svg>
+    ),
+  };
+  
+  return shapes[type] || shapes.blob;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BOUNCER RESPONSES  
 // ═══════════════════════════════════════════════════════════════════════════════
 const REJECTION_LINES = [
-  "Sul sul! ...Just kidding. Get out. 🚫",
-  "*laughs in Simlish* Dag dag, copycat!",
-  "Your originality need is CRITICALLY LOW.",
-  "Needs: Creativity ████░░░░░░ 20%",
-  "That name? In THIS economy? Please.",
-  "*crosses arms* The Simulation rejects you.",
+  "HAHAHAHA! That name?! Get outta here! 😂",
+  "*laughs maniacally* Oh honey, no...",
+  "You thought you were original? Cute. NEXT!",
+  "*wipes tear* That's hilarious. Denied.",
+  "The audacity! That's been taken FOREVER.",
 ];
 
 const APPROVAL_LINES = [
-  "Sul sul! Welcome to the party! 🎉",
-  "Your creativity need is MAXED! Come in!",
-  "Woohoo! That's a fresh name!",
-  "*happy Simlish noises* You may enter!",
+  "Wait... that's actually original? Respect!",
+  "Well well well, look who's creative!",
+  "*slow clap* You may enter... for now.",
+  "Alright, you pass. Don't make me regret this.",
 ];
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// AVATAR GENERATOR
-// ═══════════════════════════════════════════════════════════════════════════════
-const generateAvatar = (name) => {
-  const avatars = ["🤖", "👾", "🎭", "🦊", "🐺", "🦁", "🐲", "🦄", "🌟", "⚡", "🔮", "💎"];
-  const shirts = ["AI Native", "Prompt Lord", "Token Wizard", "Neural Ninja", "Built Different", "The Original"];
-  const hash = name.split("").reduce((a, b) => a + b.charCodeAt(0), 0);
-  return {
-    avatar: avatars[hash % avatars.length],
-    shirt: shirts[hash % shirts.length],
-    desc: "The Newcomer",
-    mood: MOODS[hash % MOODS.length],
-  };
-};
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PLUMBOB COMPONENT (The iconic Sims diamond)
-// ═══════════════════════════════════════════════════════════════════════════════
-function Plumbob({ color = C.plumbob, size = 30, mood = "good" }) {
-  const moodColors = {
-    good: C.plumbob,
-    neutral: "#FFD700",
-    bad: "#FF4444",
-  };
-  return (
-    <div style={{
-      width: 0, height: 0,
-      borderLeft: `${size/2}px solid transparent`,
-      borderRight: `${size/2}px solid transparent`,
-      borderBottom: `${size}px solid ${moodColors[mood]}`,
-      filter: `drop-shadow(0 0 10px ${moodColors[mood]})`,
-      animation: "plumbobFloat 2s ease-in-out infinite",
-      position: "relative",
-    }}>
-      <div style={{
-        position: "absolute",
-        top: size,
-        left: -size/2,
-        width: 0, height: 0,
-        borderLeft: `${size/2}px solid transparent`,
-        borderRight: `${size/2}px solid transparent`,
-        borderTop: `${size}px solid ${moodColors[mood]}`,
-        filter: `drop-shadow(0 0 10px ${moodColors[mood]})`,
-      }} />
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SPEECH BUBBLE COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
-function SpeechBubble({ text, type = "normal" }) {
-  const bgColor = type === "error" ? "#4a1a1a" : type === "success" ? "#1a4a1a" : "#2a2a4a";
-  const borderColor = type === "error" ? C.error : type === "success" ? C.success : C.neonBlue;
-  
-  return (
-    <div style={{
-      position: "relative",
-      background: bgColor,
-      border: `2px solid ${borderColor}`,
-      borderRadius: 16,
-      padding: "16px 20px",
-      maxWidth: 300,
-      boxShadow: `0 0 20px ${borderColor}40`,
-    }}>
-      <p style={{ color: C.text, fontSize: 15, lineHeight: 1.5, margin: 0 }}>{text}</p>
-      <div style={{
-        position: "absolute",
-        bottom: -12,
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: 0, height: 0,
-        borderLeft: "12px solid transparent",
-        borderRight: "12px solid transparent",
-        borderTop: `12px solid ${borderColor}`,
-      }} />
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// NEED BAR COMPONENT (Like Sims needs)
-// ═══════════════════════════════════════════════════════════════════════════════
-function NeedBar({ label, value, color = C.plumbob }) {
-  return (
-    <div style={{ marginBottom: 8 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.textMuted, marginBottom: 4 }}>
-        <span>{label}</span>
-        <span>{value}%</span>
-      </div>
-      <div style={{ height: 8, background: "#1a1a2e", borderRadius: 4, overflow: "hidden" }}>
-        <div style={{
-          height: "100%",
-          width: `${value}%`,
-          background: value > 60 ? C.plumbob : value > 30 ? "#FFD700" : C.error,
-          borderRadius: 4,
-          transition: "all 0.5s ease",
-        }} />
-      </div>
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SIM CHARACTER COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
-function SimCharacter({ avatar, name, mood = "good", size = 80, showPlumbob = true, dancing = false }) {
-  return (
-    <div style={{ 
-      display: "flex", flexDirection: "column", alignItems: "center",
-      animation: dancing ? "simDance 0.5s ease-in-out infinite alternate" : "none",
-    }}>
-      {showPlumbob && (
-        <div style={{ marginBottom: 8 }}>
-          <Plumbob mood={mood} size={20} />
-        </div>
-      )}
-      <div style={{
-        width: size, height: size,
-        background: `linear-gradient(135deg, ${C.bgCard}, ${C.bgLight})`,
-        borderRadius: 16,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        fontSize: size * 0.5,
-        border: `3px solid ${C.neonBlue}40`,
-        boxShadow: `0 4px 20px rgba(0,0,0,0.3)`,
-      }}>
-        {avatar}
-      </div>
-      {name && (
-        <div style={{
-          marginTop: 8,
-          padding: "4px 12px",
-          background: C.bgCard,
-          borderRadius: 8,
-          fontSize: 12,
-          color: C.text,
-          fontWeight: 600,
-        }}>
-          {name}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// LOADING SCREEN (Sims-style)
-// ═══════════════════════════════════════════════════════════════════════════════
-function LoadingScreen({ onComplete, message = "Reticulating Splines..." }) {
-  const [progress, setProgress] = useState(0);
-  const [tip, setTip] = useState("Did you know? 73% of AI names are just human names with extra steps.");
-  
-  const tips = [
-    "Did you know? 73% of AI names are just human names with extra steps.",
-    "Pro tip: Adding '-GPT' to anything doesn't make it original.",
-    "Fun fact: The first AI was named 'Computer'. Very creative.",
-    "Loading creativity modules... please wait.",
-    "Checking if you're more original than a chatbot...",
-  ];
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress(p => {
-        if (p >= 100) {
-          clearInterval(interval);
-          setTimeout(onComplete, 300);
-          return 100;
-        }
-        return p + Math.random() * 15;
-      });
-    }, 200);
-    
-    const tipInterval = setInterval(() => {
-      setTip(tips[Math.floor(Math.random() * tips.length)]);
-    }, 2000);
-    
-    return () => { clearInterval(interval); clearInterval(tipInterval); };
-  }, []);
-  
-  return (
-    <div style={{
-      minHeight: "100vh",
-      background: `linear-gradient(180deg, ${C.bg} 0%, ${C.bgLight} 100%)`,
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: 40,
-    }}>
-      <Plumbob size={50} mood="good" />
-      <h2 style={{ color: C.text, marginTop: 30, fontSize: 24 }}>{message}</h2>
-      
-      <div style={{ width: 300, marginTop: 30 }}>
-        <div style={{ height: 20, background: C.bgCard, borderRadius: 10, overflow: "hidden", border: `2px solid ${C.plumbob}40` }}>
-          <div style={{
-            height: "100%",
-            width: `${Math.min(progress, 100)}%`,
-            background: `linear-gradient(90deg, ${C.plumbob}, ${C.neonBlue})`,
-            borderRadius: 8,
-            transition: "width 0.2s ease",
-          }} />
-        </div>
-      </div>
-      
-      <p style={{ color: C.textMuted, marginTop: 30, textAlign: "center", maxWidth: 400, fontStyle: "italic" }}>
-        💡 {tip}
-      </p>
-    </div>
-  );
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // LANDING SCREEN
@@ -277,14 +274,10 @@ function LandingScreen({ onStart }) {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: 20, textAlign: "center",
     }}>
-      <div style={{ marginBottom: 20 }}>
-        <Plumbob size={40} mood="good" />
-      </div>
-      
       <div style={{ fontSize: 12, color: C.plumbob, letterSpacing: 4, marginBottom: 12 }}>VIP MEDICAL GROUP PRESENTS</div>
       
       <h1 style={{
-        fontSize: "clamp(36px, 8vw, 56px)",
+        fontSize: "clamp(32px, 7vw, 52px)",
         background: `linear-gradient(135deg, ${C.plumbob} 0%, ${C.neonBlue} 100%)`,
         WebkitBackgroundClip: "text",
         WebkitTextFillColor: "transparent",
@@ -296,32 +289,35 @@ function LandingScreen({ onStart }) {
       
       <p style={{
         maxWidth: 450,
-        fontSize: 16,
+        fontSize: 18,
         lineHeight: 1.8,
         color: C.textMuted,
+        marginBottom: 16,
+      }}>
+        Innovation is hard...
+      </p>
+      <p style={{
+        fontSize: 22,
+        color: C.text,
+        fontWeight: 600,
+        marginBottom: 8,
+      }}>
+        ...for now...
+      </p>
+      <p style={{
+        fontSize: 16,
+        color: C.neon,
+        fontStyle: "italic",
         marginBottom: 40,
       }}>
-        Innovation is hard.<br />
-        <span style={{ color: C.text, fontWeight: 600 }}>Picking a name shouldn't be.</span><br /><br />
-        <span style={{ fontSize: 14 }}>Use this tool to avoid the embarrassment of naming your AI the same thing as everyone else.</span>
+        *evil laugh* 😈
       </p>
       
-      {/* Needs Panel Preview */}
-      <div style={{
-        background: C.bgCard,
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 32,
-        width: 280,
-        border: `2px solid ${C.plumbob}30`,
-      }}>
-        <div style={{ fontSize: 11, color: C.plumbob, letterSpacing: 2, marginBottom: 12 }}>YOUR CREATIVITY STATUS</div>
-        <NeedBar label="Originality" value={15} />
-        <NeedBar label="Self-Awareness" value={45} />
-        <NeedBar label="Name Creativity" value={5} />
-      </div>
+      <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 40, maxWidth: 400 }}>
+        Use this tool to avoid the embarrassment of naming your AI the same thing as everyone else.
+      </p>
       
-      <button onClick={onStart} style={{
+      <button type="button" onClick={onStart} style={{
         padding: "18px 48px",
         fontSize: 18,
         fontWeight: 700,
@@ -331,46 +327,36 @@ function LandingScreen({ onStart }) {
         color: C.bg,
         cursor: "pointer",
         boxShadow: `0 0 30px ${C.plumbob}40`,
-        transition: "all 0.3s",
       }}>
         ▶ ENTER THE CLUB
       </button>
-      
-      <style>{`
-        @keyframes plumbobFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-      `}</style>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BOUNCER SCREEN
+// BOUNCER SCREEN (Now asks for BOTH names)
 // ═══════════════════════════════════════════════════════════════════════════════
-function BouncerScreen({ bannedList, onApproved, onRejected }) {
-  const [name, setName] = useState("");
+function BouncerScreen({ bannedList, onApproved }) {
+  const [aiName, setAiName] = useState("");
+  const [bossName, setBossName] = useState("");
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState(null);
-  const [bouncerMood, setBouncerMood] = useState("neutral");
-  const [bouncerLine, setBouncerLine] = useState("Sul sul! Name for the list?");
+  const [bouncerLine, setBouncerLine] = useState("Two names. Your AI's name, and YOUR name. Let's go.");
   
   const checkName = () => {
-    if (!name.trim()) return;
+    if (!aiName.trim() || !bossName.trim()) return;
     setChecking(true);
     setBouncerLine("*flips through clipboard*");
     
     setTimeout(() => {
-      const isTaken = bannedList.some(b => b.name.toLowerCase() === name.trim().toLowerCase());
+      const isTaken = bannedList.some(b => b.name.toLowerCase() === aiName.trim().toLowerCase());
       
       if (isTaken) {
         setBouncerLine(REJECTION_LINES[Math.floor(Math.random() * REJECTION_LINES.length)]);
-        setBouncerMood("bad");
         setResult("rejected");
       } else {
         setBouncerLine(APPROVAL_LINES[Math.floor(Math.random() * APPROVAL_LINES.length)]);
-        setBouncerMood("good");
         setResult("approved");
       }
       setChecking(false);
@@ -378,15 +364,16 @@ function BouncerScreen({ bannedList, onApproved, onRejected }) {
   };
   
   const handleConfirm = () => {
-    const newEntry = { name: name.trim(), ...generateAvatar(name.trim()) };
-    onApproved(newEntry);
+    const colorIdx = Math.floor(Math.random() * AVATAR_COLORS.length);
+    const type = AVATAR_TYPES[Math.floor(Math.random() * AVATAR_TYPES.length)];
+    onApproved({ name: aiName.trim(), boss: bossName.trim(), type, colorIdx });
   };
   
   const reset = () => {
     setResult(null);
-    setName("");
-    setBouncerMood("neutral");
-    setBouncerLine("Sul sul! Name for the list?");
+    setAiName("");
+    setBossName("");
+    setBouncerLine("Two names. Your AI's name, and YOUR name. Let's go.");
   };
   
   return (
@@ -402,17 +389,9 @@ function BouncerScreen({ bannedList, onApproved, onRejected }) {
         textAlign: "center",
         borderBottom: `4px solid ${C.gold}`,
       }}>
-        <div style={{ fontSize: 11, color: C.gold, letterSpacing: 6 }}>✨ NOW ENTERING ✨</div>
-        <h1 style={{
-          fontSize: 42,
-          color: C.gold,
-          textShadow: `0 0 30px ${C.gold}60`,
-          margin: "8px 0",
-          fontWeight: 800,
-        }}>
+        <h1 style={{ fontSize: 36, color: C.gold, textShadow: `0 0 30px ${C.gold}60`, margin: 0 }}>
           INNOVATION CLUB
         </h1>
-        <div style={{ fontSize: 12, color: C.textMuted }}>Where Original Ideas Come to Woohoo</div>
       </div>
       
       {/* Main Scene */}
@@ -421,26 +400,29 @@ function BouncerScreen({ bannedList, onApproved, onRejected }) {
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
         padding: 20,
       }}>
-        {/* Bouncer */}
-        <div style={{ marginBottom: 20 }}>
-          <SimCharacter avatar="🕴️" name="BOUNCER" mood={bouncerMood} size={100} />
-        </div>
+        {/* Bouncer Avatar */}
+        <Avatar3D type="person" colorIdx={5} size={100} />
+        <div style={{ fontSize: 12, color: C.gold, marginTop: 8, letterSpacing: 2 }}>BOUNCER</div>
         
         {/* Speech Bubble */}
-        <div style={{ marginBottom: 30 }}>
-          <SpeechBubble 
-            text={bouncerLine} 
-            type={result === "rejected" ? "error" : result === "approved" ? "success" : "normal"} 
-          />
+        <div style={{
+          margin: "20px 0",
+          padding: "16px 24px",
+          background: result === "rejected" ? "#4a1a1a" : result === "approved" ? "#1a4a1a" : C.bgCard,
+          border: `2px solid ${result === "rejected" ? C.error : result === "approved" ? C.success : C.neonBlue}`,
+          borderRadius: 16,
+          maxWidth: 350,
+          textAlign: "center",
+        }}>
+          <p style={{ color: C.text, fontSize: 15, margin: 0 }}>"{bouncerLine}"</p>
         </div>
         
         {/* Velvet Rope */}
         <div style={{
-          width: 250, height: 12,
+          width: 200, height: 10,
           background: `linear-gradient(90deg, ${C.gold}, ${C.velvet}, ${C.gold})`,
-          borderRadius: 6,
-          boxShadow: `0 0 20px ${C.gold}40`,
-          marginBottom: 30,
+          borderRadius: 5,
+          marginBottom: 24,
         }} />
         
         {/* Input Panel */}
@@ -450,46 +432,53 @@ function BouncerScreen({ bannedList, onApproved, onRejected }) {
           padding: 28,
           width: "100%",
           maxWidth: 380,
-          border: `2px solid ${result === "rejected" ? C.error : result === "approved" ? C.success : C.neonBlue}40`,
         }}>
           {!result && (
             <>
-              <div style={{ fontSize: 11, color: C.neonBlue, letterSpacing: 2, marginBottom: 16, textAlign: "center" }}>
-                WHAT'S YOUR AI CALLED?
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", fontSize: 11, color: C.neonBlue, letterSpacing: 2, marginBottom: 8 }}>
+                  YOUR AI'S NAME
+                </label>
+                <input
+                  type="text"
+                  value={aiName}
+                  onChange={e => setAiName(e.target.value)}
+                  placeholder="e.g., Jarvis, Friday, HAL..."
+                  disabled={checking}
+                  style={{
+                    width: "100%", padding: 14, fontSize: 16,
+                    background: C.bgLight, border: `2px solid ${C.neonBlue}50`,
+                    borderRadius: 10, color: C.text, boxSizing: "border-box",
+                  }}
+                />
               </div>
-              <input
-                type="text"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && checkName()}
-                placeholder="Enter name..."
-                disabled={checking}
-                style={{
-                  width: "100%",
-                  padding: 16,
-                  fontSize: 20,
-                  background: C.bgLight,
-                  border: `2px solid ${C.neonBlue}50`,
-                  borderRadius: 12,
-                  color: C.text,
-                  textAlign: "center",
-                  marginBottom: 16,
-                  boxSizing: "border-box",
-                }}
-              />
-              <button onClick={checkName} disabled={!name.trim() || checking} style={{
-                width: "100%",
-                padding: 16,
-                fontSize: 16,
-                fontWeight: 700,
-                background: name.trim() && !checking ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
-                border: "none",
-                borderRadius: 12,
-                color: name.trim() && !checking ? C.bg : C.textMuted,
-                cursor: name.trim() && !checking ? "pointer" : "not-allowed",
-                transition: "all 0.3s",
+              
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: "block", fontSize: 11, color: C.gold, letterSpacing: 2, marginBottom: 8 }}>
+                  YOUR NAME (THE BOSS)
+                </label>
+                <input
+                  type="text"
+                  value={bossName}
+                  onChange={e => setBossName(e.target.value)}
+                  placeholder="e.g., Tony Stark, You..."
+                  disabled={checking}
+                  style={{
+                    width: "100%", padding: 14, fontSize: 16,
+                    background: C.bgLight, border: `2px solid ${C.gold}50`,
+                    borderRadius: 10, color: C.text, boxSizing: "border-box",
+                  }}
+                />
+              </div>
+              
+              <button type="button" onClick={checkName} disabled={!aiName.trim() || !bossName.trim() || checking} style={{
+                width: "100%", padding: 16, fontSize: 16, fontWeight: 700,
+                background: aiName.trim() && bossName.trim() && !checking ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
+                border: "none", borderRadius: 12,
+                color: aiName.trim() && bossName.trim() && !checking ? C.bg : C.textMuted,
+                cursor: aiName.trim() && bossName.trim() && !checking ? "pointer" : "not-allowed",
               }}>
-                {checking ? "🔍 CHECKING THE LIST..." : "CHECK ORIGINALITY"}
+                {checking ? "🔍 CHECKING..." : "CHECK ORIGINALITY"}
               </button>
             </>
           )}
@@ -497,20 +486,13 @@ function BouncerScreen({ bannedList, onApproved, onRejected }) {
           {result === "rejected" && (
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 64, marginBottom: 16 }}>😤</div>
-              <div style={{ marginBottom: 20 }}>
-                <NeedBar label="Originality" value={0} color={C.error} />
-              </div>
-              <p style={{ color: C.error, fontSize: 14, marginBottom: 20 }}>
-                "{name}" is TAKEN. Back of the line!
+              <p style={{ color: C.error, fontSize: 16, marginBottom: 20 }}>
+                "{aiName}" is TAKEN. Get out!
               </p>
-              <button onClick={reset} style={{
-                padding: "14px 32px",
-                background: C.bgLight,
-                border: `2px solid ${C.error}`,
-                borderRadius: 10,
-                color: C.text,
-                cursor: "pointer",
-                fontSize: 14,
+              <button type="button" onClick={reset} style={{
+                padding: "14px 32px", background: C.bgLight,
+                border: `2px solid ${C.error}`, borderRadius: 10,
+                color: C.text, cursor: "pointer",
               }}>
                 🚶 Walk of Shame
               </button>
@@ -520,76 +502,58 @@ function BouncerScreen({ bannedList, onApproved, onRejected }) {
           {result === "approved" && (
             <div style={{ textAlign: "center" }}>
               <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
-              <div style={{ marginBottom: 20 }}>
-                <NeedBar label="Originality" value={100} color={C.success} />
-              </div>
-              <p style={{ color: C.success, fontSize: 16, fontWeight: 600, marginBottom: 8 }}>
-                "{name}" is ORIGINAL!
+              <p style={{ color: C.success, fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
+                "{aiName}" is ORIGINAL!
               </p>
               <p style={{ color: C.textMuted, fontSize: 13, marginBottom: 20 }}>
-                Ready to join the party?
+                Welcome, {bossName}. Your AI may enter.
               </p>
               <div style={{ display: "flex", gap: 12 }}>
-                <button onClick={reset} style={{
-                  flex: 1, padding: 14,
-                  background: C.bgLight,
-                  border: `1px solid ${C.textMuted}`,
-                  borderRadius: 10,
-                  color: C.textMuted,
-                  cursor: "pointer",
+                <button type="button" onClick={reset} style={{
+                  flex: 1, padding: 14, background: C.bgLight,
+                  border: `1px solid ${C.textMuted}`, borderRadius: 10,
+                  color: C.textMuted, cursor: "pointer",
                 }}>
                   Nevermind
                 </button>
-                <button onClick={handleConfirm} style={{
+                <button type="button" onClick={handleConfirm} style={{
                   flex: 1, padding: 14,
                   background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
-                  border: "none",
-                  borderRadius: 10,
-                  color: C.bg,
-                  fontWeight: 700,
-                  cursor: "pointer",
+                  border: "none", borderRadius: 10,
+                  color: C.bg, fontWeight: 700, cursor: "pointer",
                 }}>
-                  🎉 WOOHOO!
+                  🎉 ENTER!
                 </button>
               </div>
             </div>
           )}
         </div>
         
-        {/* Queue Count */}
-        <div style={{ marginTop: 24, color: C.textMuted, fontSize: 12 }}>
+        <div style={{ marginTop: 20, color: C.textMuted, fontSize: 12 }}>
           👥 {bannedList.length} names already inside
         </div>
       </div>
-      
-      <style>{`
-        @keyframes plumbobFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-8px); }
-        }
-      `}</style>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CLUB INTERIOR (Dance Floor)
+// CLUB INTERIOR (3D Avatars with Hover)
 // ═══════════════════════════════════════════════════════════════════════════════
 function ClubInterior({ bannedList, newMember, onBack }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+  
   return (
     <div style={{
       minHeight: "100vh",
       background: `linear-gradient(180deg, #0a0a1a 0%, #1a0a2a 100%)`,
-      overflow: "hidden",
       position: "relative",
+      overflow: "hidden",
     }}>
       {/* Disco Ball */}
       <div style={{
-        position: "absolute",
-        top: 20,
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: 60, height: 60,
+        position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)",
+        width: 50, height: 50,
         background: `radial-gradient(circle at 30% 30%, #fff, #888)`,
         borderRadius: "50%",
         boxShadow: `0 0 40px #fff, 0 0 80px ${C.neonBlue}`,
@@ -599,75 +563,61 @@ function ClubInterior({ bannedList, newMember, onBack }) {
       {/* Welcome Banner */}
       {newMember && (
         <div style={{
-          position: "absolute",
-          top: 100,
-          left: "50%",
-          transform: "translateX(-50%)",
-          padding: "12px 32px",
+          position: "absolute", top: 90, left: "50%", transform: "translateX(-50%)",
+          padding: "10px 24px",
           background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
-          borderRadius: 30,
-          color: C.bg,
-          fontWeight: 700,
-          fontSize: 16,
-          boxShadow: `0 0 30px ${C.plumbob}60`,
-          animation: "bounce 0.5s ease-out",
-          zIndex: 10,
+          borderRadius: 20, color: C.bg, fontWeight: 700, fontSize: 14, zIndex: 10,
         }}>
-          🌟 {newMember.name} just joined! WOOHOO! 🌟
+          🌟 {newMember.name} ({newMember.boss}'s AI) just joined! 🌟
         </div>
       )}
       
       {/* Dance Floor */}
       <div style={{
-        paddingTop: 160,
-        paddingBottom: 100,
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "center",
-        gap: 20,
-        padding: "160px 20px 100px",
+        paddingTop: 140, paddingBottom: 100,
+        display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16,
+        padding: "140px 20px 100px",
       }}>
         {bannedList.map((member, idx) => (
-          <div key={member.name} style={{
-            background: member.name === newMember?.name ? `linear-gradient(135deg, ${C.plumbob}20, ${C.neonBlue}20)` : C.bgCard,
-            border: `2px solid ${member.name === newMember?.name ? C.plumbob : C.neonBlue}30`,
-            borderRadius: 20,
-            padding: 16,
-            width: 130,
-            textAlign: "center",
-            animation: `simDance ${0.4 + (idx % 4) * 0.1}s ease-in-out infinite alternate`,
-          }}>
-            <div style={{ marginBottom: 8 }}>
-              <Plumbob size={16} mood="good" />
-            </div>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>{member.avatar}</div>
-            <div style={{ fontWeight: 700, color: C.text, fontSize: 13 }}>{member.name}</div>
-            <div style={{
-              fontSize: 9,
-              color: C.neonBlue,
-              marginTop: 6,
-              padding: "3px 8px",
-              background: `${C.neonBlue}20`,
-              borderRadius: 6,
-            }}>
-              "{member.shirt}"
-            </div>
-            <div style={{ fontSize: 10, color: C.textMuted, marginTop: 4 }}>
-              Mood: {member.mood}
-            </div>
+          <div
+            key={member.name}
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            style={{
+              position: "relative",
+              background: member.name === newMember?.name ? `${C.plumbob}20` : C.bgCard,
+              border: `2px solid ${member.name === newMember?.name ? C.plumbob : C.neonBlue}30`,
+              borderRadius: 16, padding: 12, width: 100, textAlign: "center",
+              cursor: "pointer", transition: "transform 0.2s",
+              transform: hoveredIdx === idx ? "scale(1.1)" : "scale(1)",
+            }}
+          >
+            <Avatar3D type={member.type} colorIdx={member.colorIdx} size={70} dancing={true} />
+            
+            {/* Hover Info */}
+            {hoveredIdx === idx && (
+              <div style={{
+                position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
+                background: C.bgLight, border: `2px solid ${C.gold}`,
+                borderRadius: 10, padding: "10px 14px", marginBottom: 8,
+                whiteSpace: "nowrap", zIndex: 20,
+                boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+              }}>
+                <div style={{ fontWeight: 700, color: C.text, fontSize: 14 }}>{member.name}</div>
+                <div style={{ color: C.gold, fontSize: 11, marginTop: 4 }}>Boss: {member.boss}</div>
+              </div>
+            )}
           </div>
         ))}
       </div>
       
       {/* Disco Lights */}
       <div style={{
-        position: "fixed",
-        top: 0, left: 0, right: 0, bottom: 0,
+        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
         background: `
-          radial-gradient(circle at 20% 20%, ${C.neon}15 0%, transparent 25%),
-          radial-gradient(circle at 80% 30%, ${C.neonBlue}15 0%, transparent 25%),
-          radial-gradient(circle at 40% 70%, ${C.plumbob}15 0%, transparent 25%),
-          radial-gradient(circle at 70% 80%, ${C.gold}15 0%, transparent 25%)
+          radial-gradient(circle at 20% 20%, ${C.neon}10 0%, transparent 25%),
+          radial-gradient(circle at 80% 30%, ${C.neonBlue}10 0%, transparent 25%),
+          radial-gradient(circle at 40% 70%, ${C.plumbob}10 0%, transparent 25%)
         `,
         pointerEvents: "none",
         animation: "discoLights 3s ease-in-out infinite alternate",
@@ -675,41 +625,27 @@ function ClubInterior({ bannedList, newMember, onBack }) {
       
       {/* Back Button */}
       <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
-        <button onClick={onBack} style={{
-          padding: "14px 32px",
-          background: "rgba(0,0,0,0.8)",
-          border: `2px solid ${C.plumbob}`,
-          borderRadius: 30,
-          color: C.plumbob,
-          cursor: "pointer",
-          fontWeight: 600,
-          boxShadow: `0 0 20px ${C.plumbob}40`,
+        <button type="button" onClick={onBack} style={{
+          padding: "14px 32px", background: "rgba(0,0,0,0.8)",
+          border: `2px solid ${C.plumbob}`, borderRadius: 30,
+          color: C.plumbob, cursor: "pointer", fontWeight: 600,
         }}>
           🚪 Check Another Name
         </button>
       </div>
       
       <style>{`
-        @keyframes simDance {
-          0% { transform: translateY(0) rotate(-2deg) scale(1); }
-          100% { transform: translateY(-12px) rotate(2deg) scale(1.02); }
+        @keyframes dance3d {
+          0% { transform: translateY(0) rotate(-3deg); }
+          100% { transform: translateY(-8px) rotate(3deg); }
         }
         @keyframes spin {
           from { transform: translateX(-50%) rotate(0deg); }
           to { transform: translateX(-50%) rotate(360deg); }
         }
-        @keyframes bounce {
-          0% { transform: translateX(-50%) scale(0.5); opacity: 0; }
-          50% { transform: translateX(-50%) scale(1.1); }
-          100% { transform: translateX(-50%) scale(1); opacity: 1; }
-        }
         @keyframes discoLights {
           0% { opacity: 0.5; }
           100% { opacity: 1; }
-        }
-        @keyframes plumbobFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
         }
       `}</style>
     </div>
@@ -717,9 +653,9 @@ function ClubInterior({ bannedList, newMember, onBack }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MUSIC
+// CLUB MUSIC
 // ═══════════════════════════════════════════════════════════════════════════════
-const CLUB_MUSIC_URL = "https://cdn.pixabay.com/audio/2022/10/25/audio_3df2af5b93.mp3";
+const CLUB_MUSIC_URL = "https://cdn.pixabay.com/audio/2022/03/15/audio_8cb749d484.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
@@ -728,36 +664,30 @@ export default function App() {
   const [screen, setScreen] = useState("landing");
   const [bannedList, setBannedList] = useState(INITIAL_BANNED);
   const [newMember, setNewMember] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [muted, setMuted] = useState(false);
   const audioRef = useRef(null);
+  const [audioLoaded, setAudioLoaded] = useState(false);
   
   useEffect(() => {
-    audioRef.current = new Audio(CLUB_MUSIC_URL);
-    audioRef.current.loop = true;
-    audioRef.current.volume = 0;
-    return () => { if (audioRef.current) { audioRef.current.pause(); } };
+    const audio = new Audio(CLUB_MUSIC_URL);
+    audio.loop = true;
+    audio.volume = 0;
+    audio.preload = "auto";
+    audio.addEventListener("canplaythrough", () => setAudioLoaded(true));
+    audioRef.current = audio;
+    return () => { audio.pause(); audio.src = ""; };
   }, []);
   
   useEffect(() => {
-    if (!audioRef.current || muted) return;
-    const targetVol = screen === "landing" ? 0 : screen === "bouncer" ? 0.1 : 0.4;
+    if (!audioRef.current) return;
+    const targetVol = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.15 : 0.4;
     audioRef.current.volume = targetVol;
   }, [screen, muted]);
   
-  const startMusic = () => {
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {});
-    }
-  };
-  
   const handleStart = () => {
-    startMusic();
-    setLoading(true);
-  };
-  
-  const handleLoadingComplete = () => {
-    setLoading(false);
+    if (audioRef.current && audioLoaded) {
+      audioRef.current.play().catch(e => console.log("Audio play failed:", e));
+    }
     setScreen("bouncer");
   };
   
@@ -772,8 +702,8 @@ export default function App() {
     setScreen("bouncer");
   };
   
-  const MuteButton = () => screen !== "landing" && !loading && (
-    <button onClick={() => { setMuted(!muted); if(audioRef.current) audioRef.current.muted = !muted; }} style={{
+  const MuteButton = () => screen !== "landing" && (
+    <button type="button" onClick={() => setMuted(!muted)} style={{
       position: "fixed", bottom: 20, right: 20, zIndex: 1000,
       width: 48, height: 48, borderRadius: "50%",
       background: "rgba(0,0,0,0.7)", border: `2px solid ${C.plumbob}`,
@@ -783,23 +713,7 @@ export default function App() {
     </button>
   );
   
-  if (loading) {
-    return <LoadingScreen onComplete={handleLoadingComplete} message="Entering the Club..." />;
-  }
-  
-  if (screen === "landing") {
-    return <LandingScreen onStart={handleStart} />;
-  }
-  
-  if (screen === "club") {
-    return <>
-      <ClubInterior bannedList={bannedList} newMember={newMember} onBack={handleBack} />
-      <MuteButton />
-    </>;
-  }
-  
-  return <>
-    <BouncerScreen bannedList={bannedList} onApproved={handleApproved} onRejected={() => {}} />
-    <MuteButton />
-  </>;
+  if (screen === "landing") return <LandingScreen onStart={handleStart} />;
+  if (screen === "club") return <><ClubInterior bannedList={bannedList} newMember={newMember} onBack={handleBack} /><MuteButton /></>;
+  return <><BouncerScreen bannedList={bannedList} onApproved={handleApproved} /><MuteButton /></>;
 }
