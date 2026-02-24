@@ -19,19 +19,19 @@ const C = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SOUND EFFECTS - Using Free Music Archive (CORS-friendly, verified working)
+// SOUND EFFECTS - Club/Techno vibes 🎵
 // ═══════════════════════════════════════════════════════════════════════════════
-// Club music - upbeat electronic
-const MUSIC_URL = "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3";
+// Club music - electronic/techno (SoundHelix - high BPM electronic)
+const MUSIC_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
 // Backup music URLs
 const MUSIC_FALLBACKS = [
-  "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Kai_Engel/Satin/Kai_Engel_-_04_-_Sentinel.mp3",
-  "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/blocSonic/Javolenus/Bite-Sized_Electronic/Javolenus_-_01_-_Silhouette.mp3",
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
 ];
-// Success sound - short celebration (using a simple tone for reliability)
-const WOOHOO_URL = "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3";
+// Success sound
+const WOOHOO_URL = "https://samplelib.com/lib/preview/mp3/sample-3s.mp3";
 // Fail sound  
-const BOO_URL = "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_Dark_Times.mp3";
+const BOO_URL = "https://samplelib.com/lib/preview/mp3/sample-6s.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 3D AVATAR DEFINITIONS - 50+ unique avatars!
@@ -877,14 +877,17 @@ function LandingScreen({ onStart }) {
         THE ORIGINALITY CHECKER
       </h1>
       
-      <div style={{ marginBottom: 20 }}>
-        <p style={{ fontSize: 20, color: C.textMuted, marginBottom: 6, fontWeight: 300 }}>Innovation is hard...</p>
-        <p style={{ fontSize: 26, color: C.text, fontWeight: 700, marginBottom: 6 }}>...for now...</p>
-        <p style={{ fontSize: 18, color: C.neon, fontStyle: "italic", animation: "pulse 2s ease-in-out infinite" }}>*evil laugh* 😈</p>
+      <div style={{ marginBottom: 24 }}>
+        <p style={{ fontSize: 22, color: C.text, marginBottom: 8, fontWeight: 500 }}>
+          Innovation is hard <span style={{ color: C.neon }}>(for now...)</span>
+        </p>
+        <p style={{ fontSize: 18, color: C.textMuted, marginBottom: 0 }}>
+          Picking a name shouldn't be.
+        </p>
       </div>
       
       <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 28, maxWidth: 400, lineHeight: 1.6 }}>
-        Before you doom your AI to a life of being confused with Alexa, let's check if that brilliant name is actually... <span style={{ color: C.neonBlue, fontWeight: 600 }}>original</span>.
+        Use this tool to avoid the embarrassment of naming your AI the same thing as everyone else.
       </p>
       
       <div style={{ background: C.bgCard, borderRadius: 20, padding: 24, marginBottom: 32, width: 280, border: `2px solid ${C.plumbob}30`, boxShadow: `0 0 40px ${C.plumbob}10` }}>
