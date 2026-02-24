@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // DESIGN TOKENS
@@ -483,10 +483,72 @@ function ClubInterior({ bannedList, newMember, onBack }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
 // ═══════════════════════════════════════════════════════════════════════════════
+// CLUB MUSIC URL (royalty-free electronic/club beat)
+// ═══════════════════════════════════════════════════════════════════════════════
+const CLUB_MUSIC_URL = "https://cdn.pixabay.com/audio/2022/10/25/audio_3df2af5b93.mp3"; // Electronic dance beat
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MAIN APP WITH AUDIO CONTROL
+// ═══════════════════════════════════════════════════════════════════════════════
 export default function App() {
   const [screen, setScreen] = useState("landing"); // 'landing' | 'bouncer' | 'club'
   const [bannedList, setBannedList] = useState(INITIAL_BANNED);
   const [newMember, setNewMember] = useState(null);
+  const [musicStarted, setMusicStarted] = useState(false);
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef(null);
+  
+  // Initialize audio
+  useEffect(() => {
+    audioRef.current = new Audio(CLUB_MUSIC_URL);
+    audioRef.current.loop = true;
+    audioRef.current.volume = 0;
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+  
+  // Control volume based on screen
+  useEffect(() => {
+    if (!audioRef.current || !musicStarted || muted) return;
+    
+    const targetVolume = screen === "landing" ? 0 : screen === "bouncer" ? 0.15 : 0.5;
+    
+    // Smooth volume transition
+    const currentVol = audioRef.current.volume;
+    const step = (targetVolume - currentVol) / 20;
+    let frame = 0;
+    
+    const transition = setInterval(() => {
+      frame++;
+      if (frame >= 20) {
+        audioRef.current.volume = targetVolume;
+        clearInterval(transition);
+      } else {
+        audioRef.current.volume = Math.max(0, Math.min(1, currentVol + step * frame));
+      }
+    }, 50);
+    
+    return () => clearInterval(transition);
+  }, [screen, musicStarted, muted]);
+  
+  // Start music (needs user interaction)
+  const startMusic = () => {
+    if (audioRef.current && !musicStarted) {
+      audioRef.current.play().catch(() => {});
+      setMusicStarted(true);
+    }
+  };
+  
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !muted;
+      setMuted(!muted);
+    }
+  };
   
   const handleApproved = (member) => {
     setBannedList(prev => [...prev, member]);
@@ -499,19 +561,44 @@ export default function App() {
     setScreen("bouncer");
   };
   
+  const handleStart = () => {
+    startMusic();
+    setScreen("bouncer");
+  };
+  
+  // Mute button (shows on all screens except landing)
+  const MuteButton = () => screen !== "landing" && (
+    <button onClick={toggleMute} style={{
+      position: "fixed", bottom: 20, right: 20, zIndex: 1000,
+      width: 48, height: 48, borderRadius: "50%",
+      background: "rgba(0,0,0,0.7)", border: `1px solid ${C.gold}`,
+      color: C.gold, fontSize: 20, cursor: "pointer",
+    }}>
+      {muted ? "🔇" : "🔊"}
+    </button>
+  );
+  
   if (screen === "landing") {
-    return <LandingScreen onStart={() => setScreen("bouncer")} />;
+    return <LandingScreen onStart={handleStart} />;
   }
   
   if (screen === "club") {
-    return <ClubInterior bannedList={bannedList} newMember={newMember} onBack={handleBack} />;
+    return (
+      <>
+        <ClubInterior bannedList={bannedList} newMember={newMember} onBack={handleBack} />
+        <MuteButton />
+      </>
+    );
   }
   
   return (
-    <BouncerScreen 
-      bannedList={bannedList} 
-      onApproved={handleApproved}
-      onRejected={() => {}}
-    />
+    <>
+      <BouncerScreen 
+        bannedList={bannedList} 
+        onApproved={handleApproved}
+        onRejected={() => {}}
+      />
+      <MuteButton />
+    </>
   );
 }
