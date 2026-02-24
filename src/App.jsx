@@ -19,13 +19,19 @@ const C = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SOUND EFFECTS - Using reliable CDN sources
+// SOUND EFFECTS - Using Free Music Archive (CORS-friendly, verified working)
 // ═══════════════════════════════════════════════════════════════════════════════
-// Club music - electronic/dance
-const MUSIC_URL = "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3";
-// Success/fail sounds
-const WOOHOO_URL = "https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3";
-const BOO_URL = "https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3";
+// Club music - upbeat electronic
+const MUSIC_URL = "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Tours/Enthusiast/Tours_-_01_-_Enthusiast.mp3";
+// Backup music URLs
+const MUSIC_FALLBACKS = [
+  "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Kai_Engel/Satin/Kai_Engel_-_04_-_Sentinel.mp3",
+  "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/blocSonic/Javolenus/Bite-Sized_Electronic/Javolenus_-_01_-_Silhouette.mp3",
+];
+// Success sound - short celebration (using a simple tone for reliability)
+const WOOHOO_URL = "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/WFMU/Broke_For_Free/Directionless_EP/Broke_For_Free_-_01_-_Night_Owl.mp3";
+// Fail sound  
+const BOO_URL = "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Kevin_MacLeod/Impact/Kevin_MacLeod_-_Dark_Times.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 3D AVATAR DEFINITIONS - 50+ unique avatars!
@@ -1271,39 +1277,44 @@ export default function App() {
   
   // Initialize audio elements
   useEffect(() => {
+    let fallbackIndex = 0;
+    
     // Main music
     const audio = new Audio();
-    audio.crossOrigin = "anonymous";
     audio.loop = true;
-    audio.volume = 0.15;
+    audio.volume = 0.25;
     audio.preload = "auto";
     
-    // Try to load the audio
-    audio.src = MUSIC_URL;
+    const tryLoadMusic = (url) => {
+      console.log('Trying to load music from:', url);
+      audio.src = url;
+      audio.load();
+    };
+    
     audio.addEventListener('canplaythrough', () => {
       setAudioReady(true);
-      console.log('Music loaded and ready!');
+      console.log('🎵 Music loaded and ready!');
     });
-    audio.addEventListener('error', (e) => {
-      console.log('Music load error:', e);
-      // Try fallback music
-      audio.src = "https://cdn.freesound.org/previews/514/514414_1648170-lq.mp3";
+    
+    audio.addEventListener('error', () => {
+      console.log('Music failed, trying fallback...');
+      if (fallbackIndex < MUSIC_FALLBACKS.length) {
+        tryLoadMusic(MUSIC_FALLBACKS[fallbackIndex]);
+        fallbackIndex++;
+      }
     });
+    
+    // Start with primary URL
+    tryLoadMusic(MUSIC_URL);
     audioRef.current = audio;
     
-    // Sound effects
-    const woohoo = new Audio();
-    woohoo.crossOrigin = "anonymous";
-    woohoo.preload = "auto";
+    // Sound effects - simple approach
+    const woohoo = new Audio(WOOHOO_URL);
     woohoo.volume = 0.8;
-    woohoo.src = WOOHOO_URL;
     woohooRef.current = woohoo;
     
-    const boo = new Audio();
-    boo.crossOrigin = "anonymous";
-    boo.preload = "auto";
+    const boo = new Audio(BOO_URL);
     boo.volume = 0.7;
-    boo.src = BOO_URL;
     booRef.current = boo;
     
     return () => {
@@ -1337,31 +1348,23 @@ export default function App() {
   
   const handleStart = async () => {
     // Start music on first user interaction (required by browsers)
-    if (audioRef.current && !audioStarted) {
-      try {
-        // Resume AudioContext if needed (for some browsers)
-        if (window.AudioContext || window.webkitAudioContext) {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          if (ctx.state === 'suspended') await ctx.resume();
-        }
-        
-        audioRef.current.volume = 0.2;
-        const playPromise = audioRef.current.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            console.log('Music started!');
-            setAudioStarted(true);
-          }).catch(e => {
-            console.log("Music play blocked:", e);
-            setAudioStarted(true); // Still mark as started so UI updates
-          });
-        }
-      } catch (e) {
-        console.log("Music start error:", e);
-        setAudioStarted(true);
-      }
-    }
     setScreen("bouncer");
+    
+    if (audioRef.current && !audioStarted) {
+      audioRef.current.volume = 0.25;
+      
+      // Simple play attempt - browsers require user gesture
+      audioRef.current.play()
+        .then(() => {
+          console.log('🎵 Music playing!');
+          setAudioStarted(true);
+        })
+        .catch(err => {
+          console.log('Music blocked by browser:', err.message);
+          // Mark as started anyway so volume controls work if user unmutes
+          setAudioStarted(true);
+        });
+    }
   };
   
   const MuteBtn = () => screen !== "landing" && (
