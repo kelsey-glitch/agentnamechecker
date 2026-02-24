@@ -4,267 +4,56 @@ import { useState, useEffect, useRef } from "react";
 // DESIGN TOKENS
 // ═══════════════════════════════════════════════════════════════════════════════
 const C = {
-  bg: "#1a1a2e",
-  bgLight: "#16213e",
-  bgCard: "#0f3460",
+  bg: "#0a0a12",
+  bgLight: "#12121f",
+  bgCard: "#1a1a2e",
   plumbob: "#39FF14",
   gold: "#FFD700",
-  velvet: "#8B0000",
   neon: "#FF1493",
-  neonBlue: "#00BFFF",
+  neonBlue: "#00D4FF",
+  purple: "#9D4EDD",
   text: "#ffffff",
-  textMuted: "#a0a0a0",
+  textMuted: "#888899",
   success: "#39FF14",
   error: "#FF4444",
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 3D AVATAR COLORS (soft, clay-like)
-// ═══════════════════════════════════════════════════════════════════════════════
-const AVATAR_COLORS = [
-  { base: "#A8D5E5", shadow: "#7FB3C7", highlight: "#C5E8F2" }, // Soft blue
-  { base: "#F5B7B1", shadow: "#E59086", highlight: "#FADBD8" }, // Soft pink
-  { base: "#ABEBC6", shadow: "#82D9A0", highlight: "#D5F5E3" }, // Soft green
-  { base: "#F9E79F", shadow: "#F4D03F", highlight: "#FCF3CF" }, // Soft yellow
-  { base: "#D7BDE2", shadow: "#BB8FCE", highlight: "#E8DAEF" }, // Soft purple
-  { base: "#F5CBA7", shadow: "#EB984E", highlight: "#FDEBD0" }, // Soft orange
-  { base: "#AED6F1", shadow: "#85C1E9", highlight: "#D6EAF8" }, // Sky blue
-  { base: "#F1948A", shadow: "#E74C3C", highlight: "#FADBD8" }, // Coral
-];
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // INITIAL BANNED NAMES WITH BOSSES
 // ═══════════════════════════════════════════════════════════════════════════════
 const INITIAL_BANNED = [
-  { name: "Cody", boss: "Shawn", type: "robot", colorIdx: 0 },
-  { name: "Kitty", boss: "Cat", type: "cat", colorIdx: 1 },
-  { name: "Mikala", boss: "Dr. Novak", type: "person", colorIdx: 2 },
-  { name: "Samantha", boss: "Dr. Mike", type: "person", colorIdx: 3 },
-  { name: "Shadowfax", boss: "Kelsey", type: "horse", colorIdx: 4 },
-  { name: "Alexa", boss: "Jeff", type: "circle", colorIdx: 5 },
-  { name: "Siri", boss: "Tim", type: "circle", colorIdx: 6 },
-  { name: "Claude", boss: "Dario", type: "blob", colorIdx: 7 },
-  { name: "Jarvis", boss: "Tony", type: "robot", colorIdx: 0 },
-  { name: "Gemini", boss: "Sundar", type: "blob", colorIdx: 1 },
+  { name: "Cody", boss: "Shawn", avatarDesc: "A friendly robot with blue eyes" },
+  { name: "Kitty", boss: "Cat", avatarDesc: "A cute cat with whiskers" },
+  { name: "Mikala", boss: "Dr. Novak", avatarDesc: "A stylish blonde professional" },
+  { name: "Samantha", boss: "Dr. Mike", avatarDesc: "An elegant AI assistant" },
+  { name: "Shadowfax", boss: "Kelsey", avatarDesc: "A majestic white horse" },
+  { name: "Alexa", boss: "Jeff", avatarDesc: "A glowing blue orb" },
+  { name: "Siri", boss: "Tim", avatarDesc: "A colorful swirl" },
+  { name: "Claude", boss: "Dario", avatarDesc: "An orange friendly blob" },
+  { name: "Jarvis", boss: "Tony", avatarDesc: "A sleek iron helmet" },
+  { name: "Gemini", boss: "Sundar", avatarDesc: "Twin stars orbiting" },
 ];
-
-const AVATAR_TYPES = ["robot", "cat", "horse", "person", "circle", "blob", "star", "heart"];
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// 3D AVATAR COMPONENT (CSS-based clay style)
-// ═══════════════════════════════════════════════════════════════════════════════
-function Avatar3D({ type = "blob", colorIdx = 0, size = 80, dancing = false }) {
-  const colors = AVATAR_COLORS[colorIdx % AVATAR_COLORS.length];
-  
-  const baseStyle = {
-    width: size,
-    height: size,
-    position: "relative",
-    filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.3))",
-    animation: dancing ? "dance3d 0.6s ease-in-out infinite alternate" : "none",
-  };
-  
-  // Different shapes based on type
-  const shapes = {
-    robot: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <linearGradient id={`grad-${colorIdx}-robot`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="50%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </linearGradient>
-        </defs>
-        {/* Body */}
-        <rect x="25" y="35" width="50" height="50" rx="8" fill={`url(#grad-${colorIdx}-robot)`} />
-        {/* Head */}
-        <rect x="30" y="10" width="40" height="30" rx="6" fill={`url(#grad-${colorIdx}-robot)`} />
-        {/* Eyes */}
-        <circle cx="40" cy="22" r="5" fill="#333" />
-        <circle cx="60" cy="22" r="5" fill="#333" />
-        <circle cx="42" cy="20" r="2" fill="#fff" />
-        <circle cx="62" cy="20" r="2" fill="#fff" />
-        {/* Antenna */}
-        <line x1="50" y1="10" x2="50" y2="2" stroke={colors.shadow} strokeWidth="3" strokeLinecap="round" />
-        <circle cx="50" cy="2" r="4" fill={colors.highlight} />
-      </svg>
-    ),
-    cat: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <linearGradient id={`grad-${colorIdx}-cat`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="50%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </linearGradient>
-        </defs>
-        {/* Ears */}
-        <polygon points="20,35 30,10 40,35" fill={`url(#grad-${colorIdx}-cat)`} />
-        <polygon points="60,35 70,10 80,35" fill={`url(#grad-${colorIdx}-cat)`} />
-        {/* Head */}
-        <ellipse cx="50" cy="55" rx="35" ry="32" fill={`url(#grad-${colorIdx}-cat)`} />
-        {/* Eyes */}
-        <ellipse cx="38" cy="50" rx="8" ry="10" fill="#333" />
-        <ellipse cx="62" cy="50" rx="8" ry="10" fill="#333" />
-        <ellipse cx="40" cy="48" rx="3" ry="4" fill="#fff" />
-        <ellipse cx="64" cy="48" rx="3" ry="4" fill="#fff" />
-        {/* Nose */}
-        <ellipse cx="50" cy="62" rx="4" ry="3" fill={colors.shadow} />
-        {/* Whiskers */}
-        <line x1="20" y1="58" x2="35" y2="60" stroke={colors.shadow} strokeWidth="1.5" />
-        <line x1="20" y1="65" x2="35" y2="65" stroke={colors.shadow} strokeWidth="1.5" />
-        <line x1="65" y1="60" x2="80" y2="58" stroke={colors.shadow} strokeWidth="1.5" />
-        <line x1="65" y1="65" x2="80" y2="65" stroke={colors.shadow} strokeWidth="1.5" />
-      </svg>
-    ),
-    horse: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <linearGradient id={`grad-${colorIdx}-horse`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="50%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </linearGradient>
-        </defs>
-        {/* Mane */}
-        <path d="M55,15 Q65,5 60,20 Q70,15 65,30 Q75,25 68,40" fill="none" stroke={colors.shadow} strokeWidth="6" strokeLinecap="round" />
-        {/* Head */}
-        <ellipse cx="45" cy="45" rx="25" ry="30" fill={`url(#grad-${colorIdx}-horse)`} />
-        {/* Snout */}
-        <ellipse cx="35" cy="60" rx="15" ry="18" fill={`url(#grad-${colorIdx}-horse)`} />
-        {/* Eye */}
-        <circle cx="50" cy="38" r="6" fill="#333" />
-        <circle cx="52" cy="36" r="2" fill="#fff" />
-        {/* Nostril */}
-        <circle cx="28" cy="62" r="3" fill={colors.shadow} />
-        {/* Ear */}
-        <ellipse cx="55" cy="20" rx="6" ry="12" fill={`url(#grad-${colorIdx}-horse)`} />
-      </svg>
-    ),
-    person: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <linearGradient id={`grad-${colorIdx}-person`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="50%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </linearGradient>
-        </defs>
-        {/* Hair */}
-        <ellipse cx="50" cy="30" rx="28" ry="25" fill={colors.shadow} />
-        {/* Face */}
-        <ellipse cx="50" cy="45" rx="25" ry="28" fill="#FDBF9E" />
-        {/* Eyes */}
-        <circle cx="40" cy="42" r="4" fill="#333" />
-        <circle cx="60" cy="42" r="4" fill="#333" />
-        <circle cx="41" cy="41" r="1.5" fill="#fff" />
-        <circle cx="61" cy="41" r="1.5" fill="#fff" />
-        {/* Smile */}
-        <path d="M40,55 Q50,62 60,55" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" />
-        {/* Body */}
-        <ellipse cx="50" cy="90" rx="22" ry="18" fill={`url(#grad-${colorIdx}-person)`} />
-      </svg>
-    ),
-    circle: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <radialGradient id={`grad-${colorIdx}-circle`} cx="30%" cy="30%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="70%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </radialGradient>
-        </defs>
-        <circle cx="50" cy="50" r="40" fill={`url(#grad-${colorIdx}-circle)`} />
-        {/* Eyes */}
-        <circle cx="38" cy="45" r="6" fill="#333" />
-        <circle cx="62" cy="45" r="6" fill="#333" />
-        <circle cx="40" cy="43" r="2" fill="#fff" />
-        <circle cx="64" cy="43" r="2" fill="#fff" />
-        {/* Smile */}
-        <path d="M35,60 Q50,72 65,60" fill="none" stroke="#333" strokeWidth="3" strokeLinecap="round" />
-      </svg>
-    ),
-    blob: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <radialGradient id={`grad-${colorIdx}-blob`} cx="30%" cy="30%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="70%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </radialGradient>
-        </defs>
-        <path d="M50,10 Q80,20 85,50 Q80,80 50,90 Q20,80 15,50 Q20,20 50,10" fill={`url(#grad-${colorIdx}-blob)`} />
-        {/* Eyes */}
-        <circle cx="38" cy="45" r="5" fill="#333" />
-        <circle cx="62" cy="45" r="5" fill="#333" />
-        <circle cx="40" cy="43" r="2" fill="#fff" />
-        <circle cx="64" cy="43" r="2" fill="#fff" />
-        {/* Cute blush */}
-        <ellipse cx="30" cy="55" rx="6" ry="3" fill="#FFB6C1" opacity="0.5" />
-        <ellipse cx="70" cy="55" rx="6" ry="3" fill="#FFB6C1" opacity="0.5" />
-      </svg>
-    ),
-    star: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <radialGradient id={`grad-${colorIdx}-star`} cx="30%" cy="30%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="70%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </radialGradient>
-        </defs>
-        <polygon points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35" fill={`url(#grad-${colorIdx}-star)`} />
-        {/* Eyes */}
-        <circle cx="42" cy="45" r="4" fill="#333" />
-        <circle cx="58" cy="45" r="4" fill="#333" />
-        <circle cx="43" cy="44" r="1.5" fill="#fff" />
-        <circle cx="59" cy="44" r="1.5" fill="#fff" />
-        {/* Smile */}
-        <path d="M44,55 Q50,60 56,55" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    ),
-    heart: (
-      <svg viewBox="0 0 100 100" style={baseStyle}>
-        <defs>
-          <radialGradient id={`grad-${colorIdx}-heart`} cx="30%" cy="30%">
-            <stop offset="0%" stopColor={colors.highlight} />
-            <stop offset="70%" stopColor={colors.base} />
-            <stop offset="100%" stopColor={colors.shadow} />
-          </radialGradient>
-        </defs>
-        <path d="M50,88 C20,60 5,40 25,25 C40,15 50,30 50,30 C50,30 60,15 75,25 C95,40 80,60 50,88" fill={`url(#grad-${colorIdx}-heart)`} />
-        {/* Eyes */}
-        <circle cx="38" cy="45" r="4" fill="#333" />
-        <circle cx="62" cy="45" r="4" fill="#333" />
-        <circle cx="39" cy="44" r="1.5" fill="#fff" />
-        <circle cx="63" cy="44" r="1.5" fill="#fff" />
-      </svg>
-    ),
-  };
-  
-  return shapes[type] || shapes.blob;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // BOUNCER RESPONSES  
 // ═══════════════════════════════════════════════════════════════════════════════
 const REJECTION_LINES = [
   "HAHAHAHA! That name?! Get outta here! 😂",
-  "*laughs maniacally* Oh honey, no...",
-  "You thought you were original? Cute. NEXT!",
-  "*wipes tear* That's hilarious. Denied.",
-  "The audacity! That's been taken FOREVER.",
+  "*cracks knuckles* That name's TAKEN, buddy.",
+  "Nice try. That one's been here for YEARS.",
+  "*adjusts sunglasses* Nah. Back of the line.",
+  "You serious? That's the most basic name ever.",
 ];
 
 const APPROVAL_LINES = [
-  "Wait... that's actually original? Respect!",
-  "Well well well, look who's creative!",
-  "*slow clap* You may enter... for now.",
-  "Alright, you pass. Don't make me regret this.",
+  "*nods slowly* Alright... that's fresh. You're in.",
+  "Hmm... *checks list twice* ...Welcome to the club.",
+  "*surprised* Actually original? Respect. Go ahead.",
+  "Finally, someone with creativity. Enter.",
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// PLUMBOB (Sims Diamond)
+// PLUMBOB & NEED BAR
 // ═══════════════════════════════════════════════════════════════════════════════
 function Plumbob({ size = 40 }) {
   return (
@@ -283,80 +72,192 @@ function Plumbob({ size = 40 }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// NEED BAR (Sims-style)
-// ═══════════════════════════════════════════════════════════════════════════════
 function NeedBar({ label, value }) {
   const color = value > 60 ? C.plumbob : value > 30 ? C.gold : C.error;
   return (
     <div style={{ marginBottom: 10 }}>
       <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.textMuted, marginBottom: 4 }}>
-        <span>{label}</span>
-        <span>{value}%</span>
+        <span>{label}</span><span>{value}%</span>
       </div>
       <div style={{ height: 10, background: "#1a1a2e", borderRadius: 5, overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${value}%`, background: color, borderRadius: 5, transition: "all 0.5s" }} />
+        <div style={{ height: "100%", width: `${value}%`, background: color, borderRadius: 5 }} />
       </div>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LANDING SCREEN (Sims-style with plumbob)
+// CLUB BUILDING SVG
+// ═══════════════════════════════════════════════════════════════════════════════
+function ClubBuilding() {
+  return (
+    <svg viewBox="0 0 400 250" style={{ width: "100%", maxWidth: 500 }}>
+      {/* Sky/Background */}
+      <rect x="0" y="0" width="400" height="250" fill="#0a0a15" />
+      
+      {/* Stars */}
+      {[...Array(20)].map((_, i) => (
+        <circle key={i} cx={Math.random() * 400} cy={Math.random() * 100} r={Math.random() * 1.5 + 0.5} fill="#ffffff" opacity={Math.random() * 0.5 + 0.3} />
+      ))}
+      
+      {/* Building */}
+      <rect x="50" y="80" width="300" height="170" fill="#1a1a2e" />
+      <rect x="50" y="80" width="300" height="170" fill="url(#buildingGrad)" />
+      
+      {/* Roof accent */}
+      <rect x="45" y="75" width="310" height="10" fill="#2a2a4e" />
+      
+      {/* Neon sign glow */}
+      <ellipse cx="200" cy="110" rx="120" ry="30" fill={C.neon} opacity="0.15" />
+      
+      {/* INNOVATION CLUB Sign */}
+      <rect x="80" y="90" width="240" height="45" rx="5" fill="#1a0a2a" stroke={C.neon} strokeWidth="2" />
+      <text x="200" y="120" textAnchor="middle" fill={C.neon} fontSize="20" fontWeight="bold" fontFamily="Arial Black" style={{ filter: `drop-shadow(0 0 10px ${C.neon})` }}>
+        INNOVATION CLUB
+      </text>
+      
+      {/* Windows with neon glow */}
+      <rect x="70" y="145" width="40" height="50" fill="#0a0a15" stroke={C.purple} strokeWidth="2" />
+      <rect x="75" y="150" width="30" height="40" fill={C.purple} opacity="0.3" />
+      
+      <rect x="130" y="145" width="40" height="50" fill="#0a0a15" stroke={C.neonBlue} strokeWidth="2" />
+      <rect x="135" y="150" width="30" height="40" fill={C.neonBlue} opacity="0.3" />
+      
+      <rect x="230" y="145" width="40" height="50" fill="#0a0a15" stroke={C.neon} strokeWidth="2" />
+      <rect x="235" y="150" width="30" height="40" fill={C.neon} opacity="0.3" />
+      
+      <rect x="290" y="145" width="40" height="50" fill="#0a0a15" stroke={C.plumbob} strokeWidth="2" />
+      <rect x="295" y="150" width="30" height="40" fill={C.plumbob} opacity="0.3" />
+      
+      {/* Door */}
+      <rect x="175" y="160" width="50" height="90" fill="#0f0f1a" stroke={C.gold} strokeWidth="3" />
+      <rect x="180" y="165" width="40" height="35" fill={C.neonBlue} opacity="0.2" />
+      <circle cx="215" cy="210" r="4" fill={C.gold} />
+      
+      {/* VIP Rope */}
+      <line x1="140" y1="240" x2="175" y2="240" stroke={C.gold} strokeWidth="4" />
+      <line x1="225" y1="240" x2="260" y2="240" stroke={C.gold} strokeWidth="4" />
+      <circle cx="140" cy="240" r="5" fill={C.gold} />
+      <circle cx="260" cy="240" r="5" fill={C.gold} />
+      
+      {/* Ground */}
+      <rect x="0" y="245" width="400" height="10" fill="#1a1a2e" />
+      
+      {/* Gradient definitions */}
+      <defs>
+        <linearGradient id="buildingGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#2a2a4e" />
+          <stop offset="100%" stopColor="#1a1a2e" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// BOUNCER SVG (Big tough guy with sunglasses)
+// ═══════════════════════════════════════════════════════════════════════════════
+function BouncerSVG({ mood = "neutral" }) {
+  const moodColors = { neutral: "#333", angry: "#8B0000", happy: "#228B22" };
+  const auraColor = mood === "angry" ? C.error : mood === "happy" ? C.plumbob : C.neonBlue;
+  
+  return (
+    <div style={{ position: "relative" }}>
+      {/* Glow effect */}
+      <div style={{
+        position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+        width: 120, height: 120, borderRadius: "50%",
+        background: `radial-gradient(circle, ${auraColor}20 0%, transparent 70%)`,
+      }} />
+      
+      <svg viewBox="0 0 100 140" style={{ width: 100, height: 140 }}>
+        {/* Body - Big and intimidating */}
+        <ellipse cx="50" cy="115" rx="35" ry="25" fill="#1a1a1a" />
+        
+        {/* Neck */}
+        <rect x="40" y="70" width="20" height="15" fill="#8B7355" />
+        
+        {/* Head */}
+        <ellipse cx="50" cy="50" rx="25" ry="28" fill="#A0826D" />
+        
+        {/* Bald head shine */}
+        <ellipse cx="45" cy="35" rx="10" ry="8" fill="#B8977D" opacity="0.5" />
+        
+        {/* Sunglasses */}
+        <rect x="28" y="42" width="18" height="12" rx="2" fill="#0a0a0a" />
+        <rect x="54" y="42" width="18" height="12" rx="2" fill="#0a0a0a" />
+        <line x1="46" y1="48" x2="54" y2="48" stroke="#0a0a0a" strokeWidth="3" />
+        {/* Sunglasses reflection */}
+        <line x1="30" y1="45" x2="38" y2="48" stroke="#ffffff" strokeWidth="1" opacity="0.3" />
+        <line x1="56" y1="45" x2="64" y2="48" stroke="#ffffff" strokeWidth="1" opacity="0.3" />
+        
+        {/* Eyebrows - Stern */}
+        <line x1="28" y1="38" x2="44" y2="40" stroke="#3a3a3a" strokeWidth="3" strokeLinecap="round" />
+        <line x1="56" y1="40" x2="72" y2="38" stroke="#3a3a3a" strokeWidth="3" strokeLinecap="round" />
+        
+        {/* Nose */}
+        <ellipse cx="50" cy="58" rx="4" ry="5" fill="#8B7355" />
+        
+        {/* Mouth - Slight frown or neutral */}
+        {mood === "happy" ? (
+          <path d="M40,70 Q50,78 60,70" fill="none" stroke="#5a4a3a" strokeWidth="2" strokeLinecap="round" />
+        ) : (
+          <line x1="42" y1="72" x2="58" y2="72" stroke="#5a4a3a" strokeWidth="2" strokeLinecap="round" />
+        )}
+        
+        {/* Ear piece */}
+        <rect x="72" y="45" width="4" height="15" rx="2" fill="#1a1a1a" />
+        <circle cx="74" cy="62" r="3" fill="#1a1a1a" />
+        
+        {/* Arms crossed indicator - shoulders */}
+        <ellipse cx="25" cy="100" rx="12" ry="18" fill="#1a1a1a" />
+        <ellipse cx="75" cy="100" rx="12" ry="18" fill="#1a1a1a" />
+      </svg>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LANDING SCREEN
 // ═══════════════════════════════════════════════════════════════════════════════
 function LandingScreen({ onStart }) {
   return (
     <div style={{
       minHeight: "100vh",
-      background: `linear-gradient(180deg, ${C.bg} 0%, #0a0a1a 100%)`,
+      background: `linear-gradient(180deg, ${C.bg} 0%, #05050a 100%)`,
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: 20, textAlign: "center",
     }}>
-      {/* Plumbob Diamond */}
-      <div style={{ marginBottom: 20 }}>
-        <Plumbob size={50} />
-      </div>
+      <div style={{ marginBottom: 20 }}><Plumbob size={50} /></div>
       
       <div style={{ fontSize: 12, color: C.plumbob, letterSpacing: 4, marginBottom: 12 }}>VIP MEDICAL GROUP PRESENTS</div>
       
       <h1 style={{
-        fontSize: "clamp(32px, 7vw, 52px)",
+        fontSize: "clamp(28px, 6vw, 48px)",
         background: `linear-gradient(135deg, ${C.plumbob} 0%, ${C.neonBlue} 100%)`,
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        marginBottom: 24,
-        fontWeight: 800,
+        WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+        marginBottom: 20, fontWeight: 800,
       }}>
         THE ORIGINALITY CHECKER
       </h1>
       
-      <p style={{ maxWidth: 450, fontSize: 18, lineHeight: 1.8, color: C.textMuted, marginBottom: 16 }}>
-        Innovation is hard...
-      </p>
-      <p style={{ fontSize: 22, color: C.text, fontWeight: 600, marginBottom: 8 }}>
-        ...for now...
-      </p>
-      <p style={{ fontSize: 16, color: C.neon, fontStyle: "italic", marginBottom: 32 }}>
-        *evil laugh* 😈
-      </p>
+      <p style={{ fontSize: 18, color: C.textMuted, marginBottom: 8 }}>Innovation is hard...</p>
+      <p style={{ fontSize: 22, color: C.text, fontWeight: 600, marginBottom: 8 }}>...for now...</p>
+      <p style={{ fontSize: 16, color: C.neon, fontStyle: "italic", marginBottom: 24 }}>*evil laugh* 😈</p>
       
-      <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 24, maxWidth: 400 }}>
+      <p style={{ fontSize: 13, color: C.textMuted, marginBottom: 24, maxWidth: 380 }}>
         Use this tool to avoid the embarrassment of naming your AI the same thing as everyone else.
       </p>
       
-      {/* Needs Panel */}
-      <div style={{
-        background: C.bgCard, borderRadius: 16, padding: 20, marginBottom: 32,
-        width: 280, border: `2px solid ${C.plumbob}30`,
-      }}>
-        <div style={{ fontSize: 11, color: C.plumbob, letterSpacing: 2, marginBottom: 12 }}>YOUR CREATIVITY STATUS</div>
+      <div style={{ background: C.bgCard, borderRadius: 16, padding: 20, marginBottom: 28, width: 260, border: `2px solid ${C.plumbob}30` }}>
+        <div style={{ fontSize: 10, color: C.plumbob, letterSpacing: 2, marginBottom: 12 }}>YOUR CREATIVITY STATUS</div>
         <NeedBar label="Originality" value={15} />
         <NeedBar label="Self-Awareness" value={45} />
         <NeedBar label="Name Creativity" value={5} />
       </div>
       
       <button type="button" onClick={onStart} style={{
-        padding: "18px 48px", fontSize: 18, fontWeight: 700,
+        padding: "16px 40px", fontSize: 16, fontWeight: 700,
         background: `linear-gradient(135deg, ${C.plumbob} 0%, ${C.neonBlue} 100%)`,
         border: "none", borderRadius: 12, color: C.bg, cursor: "pointer",
         boxShadow: `0 0 30px ${C.plumbob}40`,
@@ -375,19 +276,16 @@ function LandingScreen({ onStart }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BOUNCER SCREEN (Now asks for BOTH names + Avatar selection)
+// BOUNCER SCREEN
 // ═══════════════════════════════════════════════════════════════════════════════
 function BouncerScreen({ bannedList, onApproved }) {
   const [aiName, setAiName] = useState("");
   const [bossName, setBossName] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState(null);
+  const [avatarSuggestion, setAvatarSuggestion] = useState("");
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState(null);
-  const [bouncerLine, setBouncerLine] = useState("Two names. Your AI's name, and YOUR name. Let's go.");
-  
-  // Get taken avatar types
-  const takenAvatars = bannedList.map(b => b.type);
-  const availableAvatars = AVATAR_TYPES.filter(t => !takenAvatars.includes(t));
+  const [bouncerMood, setBouncerMood] = useState("neutral");
+  const [bouncerLine, setBouncerLine] = useState("Names. AI and yours. Now.");
   
   const checkName = () => {
     if (!aiName.trim() || !bossName.trim()) return;
@@ -396,221 +294,113 @@ function BouncerScreen({ bannedList, onApproved }) {
     
     setTimeout(() => {
       const isTaken = bannedList.some(b => b.name.toLowerCase() === aiName.trim().toLowerCase());
-      
       if (isTaken) {
         setBouncerLine(REJECTION_LINES[Math.floor(Math.random() * REJECTION_LINES.length)]);
+        setBouncerMood("angry");
         setResult("rejected");
       } else {
         setBouncerLine(APPROVAL_LINES[Math.floor(Math.random() * APPROVAL_LINES.length)]);
+        setBouncerMood("happy");
         setResult("approved");
-        // Auto-select first available avatar if none selected
-        if (!selectedAvatar && availableAvatars.length > 0) {
-          setSelectedAvatar(availableAvatars[0]);
-        }
       }
       setChecking(false);
     }, 2000);
   };
   
   const handleConfirm = () => {
-    if (!selectedAvatar) return;
-    const colorIdx = Math.floor(Math.random() * AVATAR_COLORS.length);
-    onApproved({ name: aiName.trim(), boss: bossName.trim(), type: selectedAvatar, colorIdx });
+    if (!avatarSuggestion.trim()) return;
+    onApproved({ name: aiName.trim(), boss: bossName.trim(), avatarDesc: avatarSuggestion.trim() });
   };
   
   const reset = () => {
-    setResult(null);
-    setAiName("");
-    setBossName("");
-    setBouncerLine("Two names. Your AI's name, and YOUR name. Let's go.");
+    setResult(null); setAiName(""); setBossName(""); setAvatarSuggestion("");
+    setBouncerMood("neutral"); setBouncerLine("Names. AI and yours. Now.");
   };
   
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: `linear-gradient(180deg, #1a0a2a 0%, ${C.bg} 100%)`,
-      display: "flex", flexDirection: "column",
-    }}>
-      {/* Club Sign */}
-      <div style={{
-        background: `linear-gradient(180deg, ${C.velvet} 0%, #2a0a0a 100%)`,
-        padding: "30px 20px",
-        textAlign: "center",
-        borderBottom: `4px solid ${C.gold}`,
-      }}>
-        <h1 style={{ fontSize: 36, color: C.gold, textShadow: `0 0 30px ${C.gold}60`, margin: 0 }}>
-          INNOVATION CLUB
-        </h1>
+    <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, #0a0a15 0%, ${C.bg} 100%)`, display: "flex", flexDirection: "column" }}>
+      {/* Club Building */}
+      <div style={{ padding: "20px 20px 0" }}>
+        <ClubBuilding />
       </div>
       
-      {/* Main Scene */}
-      <div style={{
-        flex: 1,
-        display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-        padding: 20,
-      }}>
-        {/* Bouncer Avatar */}
-        <Avatar3D type="person" colorIdx={5} size={100} />
-        <div style={{ fontSize: 12, color: C.gold, marginTop: 8, letterSpacing: 2 }}>BOUNCER</div>
+      {/* Bouncer Area */}
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", padding: 20 }}>
+        <BouncerSVG mood={bouncerMood} />
         
         {/* Speech Bubble */}
         <div style={{
-          margin: "20px 0",
-          padding: "16px 24px",
-          background: result === "rejected" ? "#4a1a1a" : result === "approved" ? "#1a4a1a" : C.bgCard,
+          margin: "16px 0",
+          padding: "14px 20px",
+          background: result === "rejected" ? "#3a1a1a" : result === "approved" ? "#1a3a1a" : C.bgCard,
           border: `2px solid ${result === "rejected" ? C.error : result === "approved" ? C.success : C.neonBlue}`,
-          borderRadius: 16,
-          maxWidth: 350,
-          textAlign: "center",
+          borderRadius: 16, maxWidth: 320, textAlign: "center",
+          boxShadow: `0 0 20px ${result === "rejected" ? C.error : result === "approved" ? C.success : C.neonBlue}30`,
         }}>
-          <p style={{ color: C.text, fontSize: 15, margin: 0 }}>"{bouncerLine}"</p>
+          <p style={{ color: C.text, fontSize: 14, margin: 0, fontStyle: "italic" }}>"{bouncerLine}"</p>
         </div>
         
-        {/* Velvet Rope */}
-        <div style={{
-          width: 200, height: 10,
-          background: `linear-gradient(90deg, ${C.gold}, ${C.velvet}, ${C.gold})`,
-          borderRadius: 5,
-          marginBottom: 24,
-        }} />
-        
         {/* Input Panel */}
-        <div style={{
-          background: C.bgCard,
-          borderRadius: 20,
-          padding: 28,
-          width: "100%",
-          maxWidth: 380,
-        }}>
+        <div style={{ background: C.bgCard, borderRadius: 16, padding: 24, width: "100%", maxWidth: 360 }}>
           {!result && (
             <>
+              <div style={{ marginBottom: 14 }}>
+                <label style={{ display: "block", fontSize: 10, color: C.neonBlue, letterSpacing: 2, marginBottom: 6 }}>YOUR AI'S NAME</label>
+                <input type="text" value={aiName} onChange={e => setAiName(e.target.value)} placeholder="e.g., Jarvis, Friday..."
+                  disabled={checking} style={{ width: "100%", padding: 12, fontSize: 15, background: C.bgLight, border: `2px solid ${C.neonBlue}40`, borderRadius: 8, color: C.text, boxSizing: "border-box" }} />
+              </div>
               <div style={{ marginBottom: 16 }}>
-                <label style={{ display: "block", fontSize: 11, color: C.neonBlue, letterSpacing: 2, marginBottom: 8 }}>
-                  YOUR AI'S NAME
-                </label>
-                <input
-                  type="text"
-                  value={aiName}
-                  onChange={e => setAiName(e.target.value)}
-                  placeholder="e.g., Jarvis, Friday, HAL..."
-                  disabled={checking}
-                  style={{
-                    width: "100%", padding: 14, fontSize: 16,
-                    background: C.bgLight, border: `2px solid ${C.neonBlue}50`,
-                    borderRadius: 10, color: C.text, boxSizing: "border-box",
-                  }}
-                />
+                <label style={{ display: "block", fontSize: 10, color: C.gold, letterSpacing: 2, marginBottom: 6 }}>YOUR NAME (THE BOSS)</label>
+                <input type="text" value={bossName} onChange={e => setBossName(e.target.value)} placeholder="e.g., Tony Stark..."
+                  disabled={checking} style={{ width: "100%", padding: 12, fontSize: 15, background: C.bgLight, border: `2px solid ${C.gold}40`, borderRadius: 8, color: C.text, boxSizing: "border-box" }} />
               </div>
-              
-              <div style={{ marginBottom: 20 }}>
-                <label style={{ display: "block", fontSize: 11, color: C.gold, letterSpacing: 2, marginBottom: 8 }}>
-                  YOUR NAME (THE BOSS)
-                </label>
-                <input
-                  type="text"
-                  value={bossName}
-                  onChange={e => setBossName(e.target.value)}
-                  placeholder="e.g., Tony Stark, You..."
-                  disabled={checking}
-                  style={{
-                    width: "100%", padding: 14, fontSize: 16,
-                    background: C.bgLight, border: `2px solid ${C.gold}50`,
-                    borderRadius: 10, color: C.text, boxSizing: "border-box",
-                  }}
-                />
-              </div>
-              
               <button type="button" onClick={checkName} disabled={!aiName.trim() || !bossName.trim() || checking} style={{
-                width: "100%", padding: 16, fontSize: 16, fontWeight: 700,
+                width: "100%", padding: 14, fontSize: 15, fontWeight: 700,
                 background: aiName.trim() && bossName.trim() && !checking ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
-                border: "none", borderRadius: 12,
-                color: aiName.trim() && bossName.trim() && !checking ? C.bg : C.textMuted,
+                border: "none", borderRadius: 10, color: aiName.trim() && bossName.trim() && !checking ? C.bg : C.textMuted,
                 cursor: aiName.trim() && bossName.trim() && !checking ? "pointer" : "not-allowed",
               }}>
-                {checking ? "🔍 CHECKING..." : "CHECK ORIGINALITY"}
+                {checking ? "🔍 CHECKING..." : "CHECK THE LIST"}
               </button>
             </>
           )}
           
           {result === "rejected" && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 64, marginBottom: 16 }}>😤</div>
-              <p style={{ color: C.error, fontSize: 16, marginBottom: 20 }}>
-                "{aiName}" is TAKEN. Get out!
-              </p>
-              <button type="button" onClick={reset} style={{
-                padding: "14px 32px", background: C.bgLight,
-                border: `2px solid ${C.error}`, borderRadius: 10,
-                color: C.text, cursor: "pointer",
-              }}>
-                🚶 Walk of Shame
+              <div style={{ fontSize: 48, marginBottom: 12 }}>🚫</div>
+              <p style={{ color: C.error, fontSize: 15, marginBottom: 16 }}>"{aiName}" is TAKEN!</p>
+              <button type="button" onClick={reset} style={{ padding: "12px 28px", background: C.bgLight, border: `2px solid ${C.error}`, borderRadius: 8, color: C.text, cursor: "pointer" }}>
+                🚶 Try Again
               </button>
             </div>
           )}
           
           {result === "approved" && (
             <div style={{ textAlign: "center" }}>
-              <p style={{ color: C.success, fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
-                "{aiName}" is ORIGINAL!
-              </p>
-              <p style={{ color: C.textMuted, fontSize: 12, marginBottom: 16 }}>
-                Now pick your avatar, {bossName}:
-              </p>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
+              <p style={{ color: C.success, fontSize: 16, fontWeight: 600, marginBottom: 6 }}>"{aiName}" is ORIGINAL!</p>
+              <p style={{ color: C.textMuted, fontSize: 12, marginBottom: 16 }}>Describe your AI's avatar to enter:</p>
               
-              {/* Avatar Selection */}
-              <div style={{ 
-                display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, 
-                marginBottom: 20, padding: 12, background: C.bgLight, borderRadius: 12,
-              }}>
-                {AVATAR_TYPES.map((type, idx) => {
-                  const isTaken = takenAvatars.includes(type);
-                  const isSelected = selectedAvatar === type;
-                  return (
-                    <div
-                      key={type}
-                      onClick={() => !isTaken && setSelectedAvatar(type)}
-                      style={{
-                        padding: 6,
-                        borderRadius: 10,
-                        border: `2px solid ${isSelected ? C.plumbob : isTaken ? C.error + "50" : "transparent"}`,
-                        background: isSelected ? C.plumbob + "20" : isTaken ? C.error + "10" : "transparent",
-                        opacity: isTaken ? 0.4 : 1,
-                        cursor: isTaken ? "not-allowed" : "pointer",
-                        position: "relative",
-                      }}
-                    >
-                      <Avatar3D type={type} colorIdx={idx} size={50} />
-                      {isTaken && (
-                        <div style={{
-                          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
-                          color: C.error, fontSize: 24, fontWeight: 700,
-                        }}>✕</div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              <textarea
+                value={avatarSuggestion}
+                onChange={e => setAvatarSuggestion(e.target.value)}
+                placeholder="e.g., A cute purple robot with sparkly eyes, A wise owl wearing glasses..."
+                style={{
+                  width: "100%", padding: 12, fontSize: 14, background: C.bgLight,
+                  border: `2px solid ${C.purple}40`, borderRadius: 8, color: C.text,
+                  boxSizing: "border-box", minHeight: 70, resize: "none", fontFamily: "inherit",
+                }}
+              />
               
-              {availableAvatars.length === 0 && (
-                <p style={{ color: C.error, fontSize: 12, marginBottom: 12 }}>
-                  😱 All avatars are taken! How embarrassing...
-                </p>
-              )}
-              
-              <div style={{ display: "flex", gap: 12 }}>
-                <button type="button" onClick={reset} style={{
-                  flex: 1, padding: 14, background: C.bgLight,
-                  border: `1px solid ${C.textMuted}`, borderRadius: 10,
-                  color: C.textMuted, cursor: "pointer",
-                }}>
-                  Nevermind
+              <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
+                <button type="button" onClick={reset} style={{ flex: 1, padding: 12, background: C.bgLight, border: `1px solid ${C.textMuted}`, borderRadius: 8, color: C.textMuted, cursor: "pointer" }}>
+                  Cancel
                 </button>
-                <button type="button" onClick={handleConfirm} disabled={!selectedAvatar} style={{
-                  flex: 1, padding: 14,
-                  background: selectedAvatar ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
-                  border: "none", borderRadius: 10,
-                  color: selectedAvatar ? C.bg : C.textMuted, fontWeight: 700, 
-                  cursor: selectedAvatar ? "pointer" : "not-allowed",
+                <button type="button" onClick={handleConfirm} disabled={!avatarSuggestion.trim()} style={{
+                  flex: 1, padding: 12,
+                  background: avatarSuggestion.trim() ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
+                  border: "none", borderRadius: 8, color: avatarSuggestion.trim() ? C.bg : C.textMuted,
+                  fontWeight: 700, cursor: avatarSuggestion.trim() ? "pointer" : "not-allowed",
                 }}>
                   🎉 ENTER!
                 </button>
@@ -619,82 +409,73 @@ function BouncerScreen({ bannedList, onApproved }) {
           )}
         </div>
         
-        <div style={{ marginTop: 20, color: C.textMuted, fontSize: 12 }}>
-          👥 {bannedList.length} names already inside
-        </div>
+        <div style={{ marginTop: 16, color: C.textMuted, fontSize: 11 }}>👥 {bannedList.length} names already inside</div>
       </div>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CLUB INTERIOR (3D Avatars with Hover)
+// CLUB INTERIOR
 // ═══════════════════════════════════════════════════════════════════════════════
 function ClubInterior({ bannedList, newMember, onBack }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
   
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: `linear-gradient(180deg, #0a0a1a 0%, #1a0a2a 100%)`,
-      position: "relative",
-      overflow: "hidden",
-    }}>
+    <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, #0a0515 0%, #15051a 100%)`, position: "relative", overflow: "hidden" }}>
       {/* Disco Ball */}
       <div style={{
         position: "absolute", top: 20, left: "50%", transform: "translateX(-50%)",
-        width: 50, height: 50,
-        background: `radial-gradient(circle at 30% 30%, #fff, #888)`,
-        borderRadius: "50%",
-        boxShadow: `0 0 40px #fff, 0 0 80px ${C.neonBlue}`,
+        width: 50, height: 50, background: `radial-gradient(circle at 30% 30%, #fff, #666)`,
+        borderRadius: "50%", boxShadow: `0 0 40px #fff, 0 0 80px ${C.neonBlue}40`,
         animation: "spin 4s linear infinite",
       }} />
       
       {/* Welcome Banner */}
       {newMember && (
         <div style={{
-          position: "absolute", top: 90, left: "50%", transform: "translateX(-50%)",
-          padding: "10px 24px",
-          background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
-          borderRadius: 20, color: C.bg, fontWeight: 700, fontSize: 14, zIndex: 10,
+          position: "absolute", top: 85, left: "50%", transform: "translateX(-50%)",
+          padding: "10px 20px", background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
+          borderRadius: 20, color: C.bg, fontWeight: 700, fontSize: 13, zIndex: 10, textAlign: "center",
         }}>
-          🌟 {newMember.name} ({newMember.boss}'s AI) just joined! 🌟
+          🌟 {newMember.name} ({newMember.boss}'s AI) joined! 🌟
         </div>
       )}
       
       {/* Dance Floor */}
-      <div style={{
-        paddingTop: 140, paddingBottom: 100,
-        display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16,
-        padding: "140px 20px 100px",
-      }}>
+      <div style={{ paddingTop: 130, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14, padding: "130px 16px 100px" }}>
         {bannedList.map((member, idx) => (
           <div
             key={member.name}
             onMouseEnter={() => setHoveredIdx(idx)}
             onMouseLeave={() => setHoveredIdx(null)}
             style={{
-              position: "relative",
-              background: member.name === newMember?.name ? `${C.plumbob}20` : C.bgCard,
-              border: `2px solid ${member.name === newMember?.name ? C.plumbob : C.neonBlue}30`,
-              borderRadius: 16, padding: 12, width: 100, textAlign: "center",
-              cursor: "pointer", transition: "transform 0.2s",
-              transform: hoveredIdx === idx ? "scale(1.1)" : "scale(1)",
+              position: "relative", background: member.name === newMember?.name ? `${C.plumbob}20` : C.bgCard,
+              border: `2px solid ${member.name === newMember?.name ? C.plumbob : C.purple}40`,
+              borderRadius: 14, padding: 14, width: 90, textAlign: "center", cursor: "pointer",
+              animation: `dance ${0.4 + (idx % 4) * 0.1}s ease-in-out infinite alternate`,
+              transform: hoveredIdx === idx ? "scale(1.1)" : "scale(1)", transition: "transform 0.2s",
             }}
           >
-            <Avatar3D type={member.type} colorIdx={member.colorIdx} size={70} dancing={true} />
+            <div style={{ fontSize: 32, marginBottom: 6 }}>
+              {member.avatarDesc?.includes("robot") ? "🤖" : 
+               member.avatarDesc?.includes("cat") ? "🐱" :
+               member.avatarDesc?.includes("horse") ? "🐴" :
+               member.avatarDesc?.includes("orb") || member.avatarDesc?.includes("circle") ? "🔵" :
+               member.avatarDesc?.includes("owl") ? "🦉" :
+               member.avatarDesc?.includes("star") ? "⭐" : "✨"}
+            </div>
+            <div style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{member.name}</div>
             
-            {/* Hover Info */}
             {hoveredIdx === idx && (
               <div style={{
-                position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
-                background: C.bgLight, border: `2px solid ${C.gold}`,
-                borderRadius: 10, padding: "10px 14px", marginBottom: 8,
-                whiteSpace: "nowrap", zIndex: 20,
-                boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+                position: "absolute", bottom: "105%", left: "50%", transform: "translateX(-50%)",
+                background: C.bgLight, border: `2px solid ${C.gold}`, borderRadius: 10, padding: "10px 12px",
+                whiteSpace: "nowrap", zIndex: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
               }}>
-                <div style={{ fontWeight: 700, color: C.text, fontSize: 14 }}>{member.name}</div>
-                <div style={{ color: C.gold, fontSize: 11, marginTop: 4 }}>Boss: {member.boss}</div>
+                <div style={{ fontWeight: 700, color: C.text, fontSize: 13 }}>{member.name}</div>
+                <div style={{ color: C.gold, fontSize: 10, marginTop: 3 }}>Boss: {member.boss}</div>
+                <div style={{ color: C.textMuted, fontSize: 9, marginTop: 3, maxWidth: 150, whiteSpace: "normal" }}>{member.avatarDesc}</div>
               </div>
             )}
           </div>
@@ -703,49 +484,35 @@ function ClubInterior({ bannedList, newMember, onBack }) {
       
       {/* Disco Lights */}
       <div style={{
-        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-        background: `
-          radial-gradient(circle at 20% 20%, ${C.neon}10 0%, transparent 25%),
-          radial-gradient(circle at 80% 30%, ${C.neonBlue}10 0%, transparent 25%),
-          radial-gradient(circle at 40% 70%, ${C.plumbob}10 0%, transparent 25%)
-        `,
-        pointerEvents: "none",
+        position: "fixed", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none",
+        background: `radial-gradient(circle at 20% 30%, ${C.neon}12 0%, transparent 25%),
+                     radial-gradient(circle at 80% 40%, ${C.neonBlue}12 0%, transparent 25%),
+                     radial-gradient(circle at 50% 70%, ${C.plumbob}12 0%, transparent 25%)`,
         animation: "discoLights 3s ease-in-out infinite alternate",
       }} />
       
-      {/* Back Button */}
-      <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
+      <div style={{ position: "fixed", bottom: 20, left: "50%", transform: "translateX(-50%)", zIndex: 10 }}>
         <button type="button" onClick={onBack} style={{
-          padding: "14px 32px", background: "rgba(0,0,0,0.8)",
-          border: `2px solid ${C.plumbob}`, borderRadius: 30,
-          color: C.plumbob, cursor: "pointer", fontWeight: 600,
+          padding: "12px 28px", background: "rgba(0,0,0,0.8)", border: `2px solid ${C.plumbob}`,
+          borderRadius: 25, color: C.plumbob, cursor: "pointer", fontWeight: 600,
         }}>
           🚪 Check Another Name
         </button>
       </div>
       
       <style>{`
-        @keyframes dance3d {
-          0% { transform: translateY(0) rotate(-3deg); }
-          100% { transform: translateY(-8px) rotate(3deg); }
-        }
-        @keyframes spin {
-          from { transform: translateX(-50%) rotate(0deg); }
-          to { transform: translateX(-50%) rotate(360deg); }
-        }
-        @keyframes discoLights {
-          0% { opacity: 0.5; }
-          100% { opacity: 1; }
-        }
+        @keyframes dance { 0% { transform: translateY(0) rotate(-2deg); } 100% { transform: translateY(-8px) rotate(2deg); } }
+        @keyframes spin { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(360deg); } }
+        @keyframes discoLights { 0% { opacity: 0.6; } 100% { opacity: 1; } }
       `}</style>
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CLUB MUSIC
+// TECHNO MUSIC
 // ═══════════════════════════════════════════════════════════════════════════════
-const CLUB_MUSIC_URL = "https://cdn.pixabay.com/audio/2022/03/15/audio_8cb749d484.mp3";
+const TECHNO_MUSIC_URL = "https://cdn.pixabay.com/audio/2022/08/02/audio_54ca0ffa52.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN APP
@@ -756,28 +523,21 @@ export default function App() {
   const [newMember, setNewMember] = useState(null);
   const [muted, setMuted] = useState(false);
   const audioRef = useRef(null);
-  const [audioLoaded, setAudioLoaded] = useState(false);
   
   useEffect(() => {
-    const audio = new Audio(CLUB_MUSIC_URL);
-    audio.loop = true;
-    audio.volume = 0;
-    audio.preload = "auto";
-    audio.addEventListener("canplaythrough", () => setAudioLoaded(true));
+    const audio = new Audio(TECHNO_MUSIC_URL);
+    audio.loop = true; audio.volume = 0; audio.preload = "auto";
     audioRef.current = audio;
     return () => { audio.pause(); audio.src = ""; };
   }, []);
   
   useEffect(() => {
     if (!audioRef.current) return;
-    const targetVol = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.15 : 0.4;
-    audioRef.current.volume = targetVol;
+    audioRef.current.volume = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.12 : 0.35;
   }, [screen, muted]);
   
   const handleStart = () => {
-    if (audioRef.current && audioLoaded) {
-      audioRef.current.play().catch(e => console.log("Audio play failed:", e));
-    }
+    if (audioRef.current) audioRef.current.play().catch(() => {});
     setScreen("bouncer");
   };
   
@@ -787,23 +547,15 @@ export default function App() {
     setScreen("club");
   };
   
-  const handleBack = () => {
-    setNewMember(null);
-    setScreen("bouncer");
-  };
-  
-  const MuteButton = () => screen !== "landing" && (
+  const MuteBtn = () => screen !== "landing" && (
     <button type="button" onClick={() => setMuted(!muted)} style={{
       position: "fixed", bottom: 20, right: 20, zIndex: 1000,
-      width: 48, height: 48, borderRadius: "50%",
-      background: "rgba(0,0,0,0.7)", border: `2px solid ${C.plumbob}`,
-      color: C.plumbob, fontSize: 20, cursor: "pointer",
-    }}>
-      {muted ? "🔇" : "🔊"}
-    </button>
+      width: 44, height: 44, borderRadius: "50%", background: "rgba(0,0,0,0.7)",
+      border: `2px solid ${C.plumbob}`, color: C.plumbob, fontSize: 18, cursor: "pointer",
+    }}>{muted ? "🔇" : "🔊"}</button>
   );
   
   if (screen === "landing") return <LandingScreen onStart={handleStart} />;
-  if (screen === "club") return <><ClubInterior bannedList={bannedList} newMember={newMember} onBack={handleBack} /><MuteButton /></>;
-  return <><BouncerScreen bannedList={bannedList} onApproved={handleApproved} /><MuteButton /></>;
+  if (screen === "club") return <><ClubInterior bannedList={bannedList} newMember={newMember} onBack={() => { setNewMember(null); setScreen("bouncer"); }} /><MuteBtn /></>;
+  return <><BouncerScreen bannedList={bannedList} onApproved={handleApproved} /><MuteBtn /></>;
 }
