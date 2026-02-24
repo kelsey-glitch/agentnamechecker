@@ -335,14 +335,19 @@ function LandingScreen({ onStart }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// BOUNCER SCREEN (Now asks for BOTH names)
+// BOUNCER SCREEN (Now asks for BOTH names + Avatar selection)
 // ═══════════════════════════════════════════════════════════════════════════════
 function BouncerScreen({ bannedList, onApproved }) {
   const [aiName, setAiName] = useState("");
   const [bossName, setBossName] = useState("");
+  const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState(null);
   const [bouncerLine, setBouncerLine] = useState("Two names. Your AI's name, and YOUR name. Let's go.");
+  
+  // Get taken avatar types
+  const takenAvatars = bannedList.map(b => b.type);
+  const availableAvatars = AVATAR_TYPES.filter(t => !takenAvatars.includes(t));
   
   const checkName = () => {
     if (!aiName.trim() || !bossName.trim()) return;
@@ -358,15 +363,19 @@ function BouncerScreen({ bannedList, onApproved }) {
       } else {
         setBouncerLine(APPROVAL_LINES[Math.floor(Math.random() * APPROVAL_LINES.length)]);
         setResult("approved");
+        // Auto-select first available avatar if none selected
+        if (!selectedAvatar && availableAvatars.length > 0) {
+          setSelectedAvatar(availableAvatars[0]);
+        }
       }
       setChecking(false);
     }, 2000);
   };
   
   const handleConfirm = () => {
+    if (!selectedAvatar) return;
     const colorIdx = Math.floor(Math.random() * AVATAR_COLORS.length);
-    const type = AVATAR_TYPES[Math.floor(Math.random() * AVATAR_TYPES.length)];
-    onApproved({ name: aiName.trim(), boss: bossName.trim(), type, colorIdx });
+    onApproved({ name: aiName.trim(), boss: bossName.trim(), type: selectedAvatar, colorIdx });
   };
   
   const reset = () => {
@@ -501,13 +510,53 @@ function BouncerScreen({ bannedList, onApproved }) {
           
           {result === "approved" && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
               <p style={{ color: C.success, fontSize: 18, fontWeight: 600, marginBottom: 8 }}>
                 "{aiName}" is ORIGINAL!
               </p>
-              <p style={{ color: C.textMuted, fontSize: 13, marginBottom: 20 }}>
-                Welcome, {bossName}. Your AI may enter.
+              <p style={{ color: C.textMuted, fontSize: 12, marginBottom: 16 }}>
+                Now pick your avatar, {bossName}:
               </p>
+              
+              {/* Avatar Selection */}
+              <div style={{ 
+                display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8, 
+                marginBottom: 20, padding: 12, background: C.bgLight, borderRadius: 12,
+              }}>
+                {AVATAR_TYPES.map((type, idx) => {
+                  const isTaken = takenAvatars.includes(type);
+                  const isSelected = selectedAvatar === type;
+                  return (
+                    <div
+                      key={type}
+                      onClick={() => !isTaken && setSelectedAvatar(type)}
+                      style={{
+                        padding: 6,
+                        borderRadius: 10,
+                        border: `2px solid ${isSelected ? C.plumbob : isTaken ? C.error + "50" : "transparent"}`,
+                        background: isSelected ? C.plumbob + "20" : isTaken ? C.error + "10" : "transparent",
+                        opacity: isTaken ? 0.4 : 1,
+                        cursor: isTaken ? "not-allowed" : "pointer",
+                        position: "relative",
+                      }}
+                    >
+                      <Avatar3D type={type} colorIdx={idx} size={50} />
+                      {isTaken && (
+                        <div style={{
+                          position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)",
+                          color: C.error, fontSize: 24, fontWeight: 700,
+                        }}>✕</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              
+              {availableAvatars.length === 0 && (
+                <p style={{ color: C.error, fontSize: 12, marginBottom: 12 }}>
+                  😱 All avatars are taken! How embarrassing...
+                </p>
+              )}
+              
               <div style={{ display: "flex", gap: 12 }}>
                 <button type="button" onClick={reset} style={{
                   flex: 1, padding: 14, background: C.bgLight,
@@ -516,11 +565,12 @@ function BouncerScreen({ bannedList, onApproved }) {
                 }}>
                   Nevermind
                 </button>
-                <button type="button" onClick={handleConfirm} style={{
+                <button type="button" onClick={handleConfirm} disabled={!selectedAvatar} style={{
                   flex: 1, padding: 14,
-                  background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
+                  background: selectedAvatar ? `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})` : "#333",
                   border: "none", borderRadius: 10,
-                  color: C.bg, fontWeight: 700, cursor: "pointer",
+                  color: selectedAvatar ? C.bg : C.textMuted, fontWeight: 700, 
+                  cursor: selectedAvatar ? "pointer" : "not-allowed",
                 }}>
                   🎉 ENTER!
                 </button>
