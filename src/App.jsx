@@ -19,10 +19,14 @@ const C = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SOUND EFFECTS - Club/Techno vibes 🎵 (hosted locally for reliability)
+// SOUND EFFECTS - Club/Techno vibes 🎵
 // ═══════════════════════════════════════════════════════════════════════════════
-// Club music - electronic/techno (hosted in /public for no glitching!)
-const MUSIC_URL = "./club-beat.mp3";
+// Club music - electronic beat (absolute path for GitHub Pages)
+const MUSIC_URL = "/VIPAIAGENTNAMECHECKERGAME/club-beat.mp3";
+// WOOHOO - crowd cheer!
+const WOOHOO_URL = "https://cdn.freesound.org/previews/270/270402_5123851-lq.mp3";
+// BOO - fail sound
+const BOO_URL = "https://cdn.freesound.org/previews/362/362205_6629901-lq.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 3D AVATAR DEFINITIONS - 50+ unique avatars!
@@ -1266,10 +1270,12 @@ export default function App() {
   const [audioStarted, setAudioStarted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
   const audioRef = useRef(null);
+  const woohooRef = useRef(null);
+  const booRef = useRef(null);
   
-  // Initialize audio - simple and reliable
+  // Initialize all audio
   useEffect(() => {
-    // Main music - locally hosted, no network issues!
+    // Main music
     const audio = new Audio(MUSIC_URL);
     audio.loop = true;
     audio.volume = 0.35;
@@ -1279,6 +1285,19 @@ export default function App() {
       setAudioReady(true);
       console.log('🎵 Club beat loaded!');
     });
+    
+    audio.addEventListener('error', (e) => {
+      console.log('Music error:', e);
+    });
+    
+    // Sound effects
+    const woohoo = new Audio(WOOHOO_URL);
+    woohoo.volume = 0.7;
+    woohooRef.current = woohoo;
+    
+    const boo = new Audio(BOO_URL);
+    boo.volume = 0.6;
+    booRef.current = boo;
     
     return () => {
       audio.pause();
@@ -1292,36 +1311,19 @@ export default function App() {
     audioRef.current.volume = targetVolume;
   }, [screen, muted, audioStarted]);
   
-  // Simple sound effects using Web Audio API (no external files needed)
+  // Play WOOHOO or BOO sounds
   const playSound = (type) => {
     if (muted) return;
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-      
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      
-      if (type === "woohoo") {
-        // Happy ascending tone
-        oscillator.frequency.setValueAtTime(400, ctx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        oscillator.start(ctx.currentTime);
-        oscillator.stop(ctx.currentTime + 0.3);
-      } else if (type === "boo") {
-        // Sad descending tone
-        oscillator.frequency.setValueAtTime(400, ctx.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.3);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-        oscillator.start(ctx.currentTime);
-        oscillator.stop(ctx.currentTime + 0.4);
+      if (type === "woohoo" && woohooRef.current) {
+        woohooRef.current.currentTime = 0;
+        woohooRef.current.play().catch(() => {});
+      } else if (type === "boo" && booRef.current) {
+        booRef.current.currentTime = 0;
+        booRef.current.play().catch(() => {});
       }
     } catch (e) {
-      console.log("Sound effect error:", e);
+      console.log("Sound error:", e);
     }
   };
   
