@@ -264,7 +264,45 @@ const APPROVAL_LINES = [
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// LANDING SCREEN
+// PLUMBOB (Sims Diamond)
+// ═══════════════════════════════════════════════════════════════════════════════
+function Plumbob({ size = 40 }) {
+  return (
+    <div style={{ animation: "plumbobFloat 2s ease-in-out infinite" }}>
+      <svg width={size} height={size * 1.6} viewBox="0 0 40 64">
+        <defs>
+          <linearGradient id="plumbobGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#7FFF7F" />
+            <stop offset="50%" stopColor="#39FF14" />
+            <stop offset="100%" stopColor="#228B22" />
+          </linearGradient>
+        </defs>
+        <polygon points="20,0 40,32 20,64 0,32" fill="url(#plumbobGrad)" style={{ filter: `drop-shadow(0 0 10px ${C.plumbob})` }} />
+      </svg>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// NEED BAR (Sims-style)
+// ═══════════════════════════════════════════════════════════════════════════════
+function NeedBar({ label, value }) {
+  const color = value > 60 ? C.plumbob : value > 30 ? C.gold : C.error;
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.textMuted, marginBottom: 4 }}>
+        <span>{label}</span>
+        <span>{value}%</span>
+      </div>
+      <div style={{ height: 10, background: "#1a1a2e", borderRadius: 5, overflow: "hidden" }}>
+        <div style={{ height: "100%", width: `${value}%`, background: color, borderRadius: 5, transition: "all 0.5s" }} />
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// LANDING SCREEN (Sims-style with plumbob)
 // ═══════════════════════════════════════════════════════════════════════════════
 function LandingScreen({ onStart }) {
   return (
@@ -274,6 +312,11 @@ function LandingScreen({ onStart }) {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: 20, textAlign: "center",
     }}>
+      {/* Plumbob Diamond */}
+      <div style={{ marginBottom: 20 }}>
+        <Plumbob size={50} />
+      </div>
+      
       <div style={{ fontSize: 12, color: C.plumbob, letterSpacing: 4, marginBottom: 12 }}>VIP MEDICAL GROUP PRESENTS</div>
       
       <h1 style={{
@@ -287,49 +330,46 @@ function LandingScreen({ onStart }) {
         THE ORIGINALITY CHECKER
       </h1>
       
-      <p style={{
-        maxWidth: 450,
-        fontSize: 18,
-        lineHeight: 1.8,
-        color: C.textMuted,
-        marginBottom: 16,
-      }}>
+      <p style={{ maxWidth: 450, fontSize: 18, lineHeight: 1.8, color: C.textMuted, marginBottom: 16 }}>
         Innovation is hard...
       </p>
-      <p style={{
-        fontSize: 22,
-        color: C.text,
-        fontWeight: 600,
-        marginBottom: 8,
-      }}>
+      <p style={{ fontSize: 22, color: C.text, fontWeight: 600, marginBottom: 8 }}>
         ...for now...
       </p>
-      <p style={{
-        fontSize: 16,
-        color: C.neon,
-        fontStyle: "italic",
-        marginBottom: 40,
-      }}>
+      <p style={{ fontSize: 16, color: C.neon, fontStyle: "italic", marginBottom: 32 }}>
         *evil laugh* 😈
       </p>
       
-      <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 40, maxWidth: 400 }}>
+      <p style={{ fontSize: 14, color: C.textMuted, marginBottom: 24, maxWidth: 400 }}>
         Use this tool to avoid the embarrassment of naming your AI the same thing as everyone else.
       </p>
       
+      {/* Needs Panel */}
+      <div style={{
+        background: C.bgCard, borderRadius: 16, padding: 20, marginBottom: 32,
+        width: 280, border: `2px solid ${C.plumbob}30`,
+      }}>
+        <div style={{ fontSize: 11, color: C.plumbob, letterSpacing: 2, marginBottom: 12 }}>YOUR CREATIVITY STATUS</div>
+        <NeedBar label="Originality" value={15} />
+        <NeedBar label="Self-Awareness" value={45} />
+        <NeedBar label="Name Creativity" value={5} />
+      </div>
+      
       <button type="button" onClick={onStart} style={{
-        padding: "18px 48px",
-        fontSize: 18,
-        fontWeight: 700,
+        padding: "18px 48px", fontSize: 18, fontWeight: 700,
         background: `linear-gradient(135deg, ${C.plumbob} 0%, ${C.neonBlue} 100%)`,
-        border: "none",
-        borderRadius: 12,
-        color: C.bg,
-        cursor: "pointer",
+        border: "none", borderRadius: 12, color: C.bg, cursor: "pointer",
         boxShadow: `0 0 30px ${C.plumbob}40`,
       }}>
         ▶ ENTER THE CLUB
       </button>
+      
+      <style>{`
+        @keyframes plumbobFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+      `}</style>
     </div>
   );
 }
