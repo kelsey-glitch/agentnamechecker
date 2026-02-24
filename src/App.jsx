@@ -19,29 +19,57 @@ const C = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SOUND EFFECTS
+// SOUND EFFECTS - Using reliable CDN sources
 // ═══════════════════════════════════════════════════════════════════════════════
-const MUSIC_URL = "https://cdn.pixabay.com/audio/2022/10/18/audio_2dca4e2a53.mp3";
-const WOOHOO_URL = "https://cdn.pixabay.com/audio/2021/08/04/audio_0625c1539c.mp3";
-const BOO_URL = "https://cdn.pixabay.com/audio/2022/03/15/audio_8f10c53f23.mp3";
+// Club music - electronic/dance
+const MUSIC_URL = "https://assets.mixkit.co/music/preview/mixkit-tech-house-vibes-130.mp3";
+// Success/fail sounds
+const WOOHOO_URL = "https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3";
+const BOO_URL = "https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 3D AVATAR DEFINITIONS - Clay/Pixar style
+// 3D AVATAR DEFINITIONS - 50+ unique avatars!
+// Base shapes × Color variants = Lots of options
 // ═══════════════════════════════════════════════════════════════════════════════
-const AVATAR_OPTIONS = [
-  { id: "robot", emoji: "🤖", name: "Robot", color: "#4FC3F7" },
-  { id: "cat", emoji: "🐱", name: "Cat", color: "#FFB74D" },
-  { id: "horse", emoji: "🐴", name: "Horse", color: "#A1887F" },
-  { id: "owl", emoji: "🦉", name: "Owl", color: "#8D6E63" },
-  { id: "star", emoji: "⭐", name: "Star", color: "#FFD54F" },
-  { id: "blob", emoji: "🟣", name: "Blob", color: "#BA68C8" },
-  { id: "gem", emoji: "💎", name: "Crystal", color: "#4DD0E1" },
-  { id: "spark", emoji: "✨", name: "Spark", color: "#FFF176" },
-  { id: "ghost", emoji: "👻", name: "Ghost", color: "#E0E0E0" },
-  { id: "alien", emoji: "👽", name: "Alien", color: "#81C784" },
-  { id: "dragon", emoji: "🐲", name: "Dragon", color: "#EF5350" },
-  { id: "butterfly", emoji: "🦋", name: "Butterfly", color: "#7986CB" },
+const BASE_SHAPES = [
+  { type: "robot", emoji: "🤖", name: "Robot" },
+  { type: "cat", emoji: "🐱", name: "Cat" },
+  { type: "horse", emoji: "🐴", name: "Horse" },
+  { type: "owl", emoji: "🦉", name: "Owl" },
+  { type: "star", emoji: "⭐", name: "Star" },
+  { type: "blob", emoji: "🟣", name: "Blob" },
+  { type: "gem", emoji: "💎", name: "Crystal" },
+  { type: "spark", emoji: "✨", name: "Spark" },
+  { type: "ghost", emoji: "👻", name: "Ghost" },
+  { type: "alien", emoji: "👽", name: "Alien" },
+  { type: "dragon", emoji: "🐲", name: "Dragon" },
+  { type: "butterfly", emoji: "🦋", name: "Butterfly" },
+  { type: "octopus", emoji: "🐙", name: "Octopus" },
+  { type: "fox", emoji: "🦊", name: "Fox" },
+  { type: "panda", emoji: "🐼", name: "Panda" },
+  { type: "unicorn", emoji: "🦄", name: "Unicorn" },
+  { type: "mushroom", emoji: "🍄", name: "Mushroom" },
 ];
+
+const COLOR_VARIANTS = [
+  { suffix: "", color: "#4FC3F7", name: "" },           // Blue (default)
+  { suffix: "-pink", color: "#F48FB1", name: "Pink" },
+  { suffix: "-gold", color: "#FFD54F", name: "Gold" },
+  { suffix: "-mint", color: "#80CBC4", name: "Mint" },
+  { suffix: "-coral", color: "#FF8A65", name: "Coral" },
+  { suffix: "-violet", color: "#B39DDB", name: "Violet" },
+];
+
+// Generate all avatar combinations (17 shapes × 6 colors = 102 options!)
+const AVATAR_OPTIONS = BASE_SHAPES.flatMap(shape => 
+  COLOR_VARIANTS.map(variant => ({
+    id: `${shape.type}${variant.suffix}`,
+    type: shape.type,
+    emoji: shape.emoji,
+    name: variant.name ? `${variant.name} ${shape.name}` : shape.name,
+    color: variant.color,
+  }))
+);
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 3D AVATAR SVG COMPONENT - Clay/Pixar style rendering
@@ -49,6 +77,7 @@ const AVATAR_OPTIONS = [
 function Avatar3D({ avatarId, size = 60, dancing = false }) {
   const avatar = AVATAR_OPTIONS.find(a => a.id === avatarId) || AVATAR_OPTIONS[0];
   const color = avatar.color;
+  const type = avatar.type || avatarId.split("-")[0]; // Extract base type
   const darkColor = adjustBrightness(color, -30);
   const lightColor = adjustBrightness(color, 40);
   
@@ -78,7 +107,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </filter>
         </defs>
         
-        {avatarId === "robot" && (
+        {type === "robot" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Robot body */}
             <rect x="25" y="40" width="50" height="50" rx="8" fill={`url(#grad-${avatarId})`} />
@@ -96,7 +125,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "cat" && (
+        {type === "cat" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Face */}
             <ellipse cx="50" cy="55" rx="35" ry="30" fill={`url(#grad-${avatarId})`} />
@@ -122,7 +151,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "horse" && (
+        {type === "horse" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Head */}
             <ellipse cx="50" cy="50" rx="30" ry="35" fill={`url(#grad-${avatarId})`} />
@@ -146,7 +175,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "owl" && (
+        {type === "owl" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Body */}
             <ellipse cx="50" cy="60" rx="32" ry="30" fill={`url(#grad-${avatarId})`} />
@@ -169,7 +198,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "star" && (
+        {type === "star" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Star shape */}
             <polygon 
@@ -187,7 +216,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "blob" && (
+        {type === "blob" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Blob body */}
             <ellipse cx="50" cy="55" rx="38" ry="35" fill={`url(#grad-${avatarId})`} />
@@ -207,7 +236,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "gem" && (
+        {type === "gem" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Crystal shape */}
             <polygon points="50,8 75,35 70,85 30,85 25,35" fill={`url(#grad-${avatarId})`} />
@@ -226,7 +255,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "spark" && (
+        {type === "spark" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Central glow */}
             <circle cx="50" cy="50" r="25" fill={`url(#grad-${avatarId})`} />
@@ -249,7 +278,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "ghost" && (
+        {type === "ghost" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Ghost body */}
             <path d="M25,40 Q25,15 50,15 Q75,15 75,40 L75,80 Q70,75 65,80 Q60,75 55,80 Q50,75 45,80 Q40,75 35,80 Q30,75 25,80 Z" fill={`url(#grad-${avatarId})`} />
@@ -268,7 +297,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "alien" && (
+        {type === "alien" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Head */}
             <ellipse cx="50" cy="50" rx="35" ry="40" fill={`url(#grad-${avatarId})`} />
@@ -289,7 +318,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "dragon" && (
+        {type === "dragon" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Head */}
             <ellipse cx="50" cy="55" rx="32" ry="28" fill={`url(#grad-${avatarId})`} />
@@ -313,7 +342,7 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           </g>
         )}
         
-        {avatarId === "butterfly" && (
+        {type === "butterfly" && (
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Wings */}
             <ellipse cx="25" cy="40" rx="22" ry="30" fill={`url(#grad-${avatarId})`} />
@@ -341,6 +370,143 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
             <circle cx="65" cy="5" r="3" fill={C.neon} />
             {/* Shine */}
             <ellipse cx="20" cy="30" rx="8" ry="6" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {type === "octopus" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Head */}
+            <ellipse cx="50" cy="35" rx="32" ry="28" fill={`url(#grad-${avatarId})`} />
+            {/* Tentacles */}
+            <path d="M20,50 Q15,70 20,85 Q22,90 18,92" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" />
+            <path d="M35,55 Q30,75 35,90" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" />
+            <path d="M50,58 Q50,78 50,92" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" />
+            <path d="M65,55 Q70,75 65,90" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" />
+            <path d="M80,50 Q85,70 80,85 Q78,90 82,92" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" />
+            {/* Eyes */}
+            <circle cx="38" cy="32" r="10" fill="#ffffff" />
+            <circle cx="62" cy="32" r="10" fill="#ffffff" />
+            <circle cx="40" cy="33" r="5" fill="#1a1a2e" />
+            <circle cx="64" cy="33" r="5" fill="#1a1a2e" />
+            <circle cx="41" cy="32" r="2" fill="#ffffff" />
+            <circle cx="65" cy="32" r="2" fill="#ffffff" />
+            {/* Smile */}
+            <path d="M40,50 Q50,58 60,50" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
+            {/* Shine */}
+            <ellipse cx="35" cy="22" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {type === "fox" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Face */}
+            <ellipse cx="50" cy="55" rx="35" ry="30" fill={`url(#grad-${avatarId})`} />
+            {/* Ears */}
+            <polygon points="15,45 25,10 40,40" fill={`url(#grad-${avatarId})`} />
+            <polygon points="85,45 75,10 60,40" fill={`url(#grad-${avatarId})`} />
+            <polygon points="20,42 27,18 37,40" fill="#1a1a2e" />
+            <polygon points="80,42 73,18 63,40" fill="#1a1a2e" />
+            {/* White face markings */}
+            <ellipse cx="50" cy="65" rx="20" ry="18" fill="#ffffff" />
+            {/* Eyes */}
+            <ellipse cx="35" cy="48" rx="6" ry="8" fill="#1a1a2e" />
+            <ellipse cx="65" cy="48" rx="6" ry="8" fill="#1a1a2e" />
+            <circle cx="36" cy="46" r="2" fill="#ffffff" />
+            <circle cx="66" cy="46" r="2" fill="#ffffff" />
+            {/* Nose */}
+            <ellipse cx="50" cy="62" rx="5" ry="4" fill="#1a1a2e" />
+            {/* Shine */}
+            <ellipse cx="35" cy="38" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {type === "panda" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Face - white */}
+            <ellipse cx="50" cy="50" rx="38" ry="35" fill="#ffffff" />
+            {/* Ears - black */}
+            <circle cx="18" cy="22" r="14" fill="#1a1a2e" />
+            <circle cx="82" cy="22" r="14" fill="#1a1a2e" />
+            {/* Eye patches - black */}
+            <ellipse cx="32" cy="45" rx="14" ry="16" fill="#1a1a2e" />
+            <ellipse cx="68" cy="45" rx="14" ry="16" fill="#1a1a2e" />
+            {/* Eyes */}
+            <circle cx="32" cy="45" r="6" fill="#ffffff" />
+            <circle cx="68" cy="45" r="6" fill="#ffffff" />
+            <circle cx="33" cy="44" r="3" fill="#1a1a2e" />
+            <circle cx="69" cy="44" r="3" fill="#1a1a2e" />
+            <circle cx="34" cy="43" r="1" fill="#ffffff" />
+            <circle cx="70" cy="43" r="1" fill="#ffffff" />
+            {/* Nose */}
+            <ellipse cx="50" cy="60" rx="6" ry="4" fill="#1a1a2e" />
+            {/* Mouth */}
+            <path d="M44,68 Q50,74 56,68" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
+            {/* Blush */}
+            <ellipse cx="25" cy="60" rx="6" ry="4" fill={color} opacity="0.4" />
+            <ellipse cx="75" cy="60" rx="6" ry="4" fill={color} opacity="0.4" />
+            {/* Shine */}
+            <ellipse cx="35" cy="30" rx="15" ry="10" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {type === "unicorn" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Head */}
+            <ellipse cx="50" cy="55" rx="32" ry="30" fill={`url(#grad-${avatarId})`} />
+            {/* Horn - rainbow! */}
+            <polygon points="50,5 42,35 58,35" fill="url(#rainbowHorn)" />
+            <defs>
+              <linearGradient id="rainbowHorn" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FF6B6B" />
+                <stop offset="25%" stopColor="#FFD93D" />
+                <stop offset="50%" stopColor="#6BCB77" />
+                <stop offset="75%" stopColor="#4D96FF" />
+                <stop offset="100%" stopColor="#9D4EDD" />
+              </linearGradient>
+            </defs>
+            {/* Ears */}
+            <ellipse cx="25" cy="35" rx="8" ry="14" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="75" cy="35" rx="8" ry="14" fill={`url(#grad-${avatarId})`} />
+            {/* Mane - colorful */}
+            <path d="M18,40 Q10,55 15,70" fill="none" stroke="#FF6B6B" strokeWidth="6" strokeLinecap="round" />
+            <path d="M15,45 Q5,60 10,75" fill="none" stroke="#FFD93D" strokeWidth="5" strokeLinecap="round" />
+            <path d="M12,50 Q2,65 7,80" fill="none" stroke="#4D96FF" strokeWidth="4" strokeLinecap="round" />
+            {/* Eyes */}
+            <ellipse cx="38" cy="52" rx="8" ry="10" fill="#ffffff" />
+            <ellipse cx="62" cy="52" rx="8" ry="10" fill="#ffffff" />
+            <circle cx="40" cy="52" r="4" fill="#9D4EDD" />
+            <circle cx="64" cy="52" r="4" fill="#9D4EDD" />
+            <circle cx="41" cy="51" r="1.5" fill="#ffffff" />
+            <circle cx="65" cy="51" r="1.5" fill="#ffffff" />
+            {/* Nose */}
+            <ellipse cx="50" cy="70" rx="4" ry="3" fill={darkColor} />
+            {/* Shine */}
+            <ellipse cx="38" cy="42" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
+        
+        {type === "mushroom" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Cap */}
+            <ellipse cx="50" cy="35" rx="40" ry="28" fill={`url(#grad-${avatarId})`} />
+            {/* Spots on cap */}
+            <circle cx="30" cy="28" r="8" fill="#ffffff" opacity="0.8" />
+            <circle cx="55" cy="22" r="6" fill="#ffffff" opacity="0.8" />
+            <circle cx="70" cy="35" r="7" fill="#ffffff" opacity="0.8" />
+            <circle cx="40" cy="42" r="5" fill="#ffffff" opacity="0.8" />
+            {/* Stem */}
+            <rect x="35" y="50" width="30" height="40" rx="8" fill="#F5F5F5" />
+            {/* Face */}
+            <circle cx="42" cy="65" r="4" fill="#1a1a2e" />
+            <circle cx="58" cy="65" r="4" fill="#1a1a2e" />
+            <circle cx="43" cy="64" r="1.5" fill="#ffffff" />
+            <circle cx="59" cy="64" r="1.5" fill="#ffffff" />
+            <path d="M45,78 Q50,83 55,78" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
+            {/* Blush */}
+            <ellipse cx="35" cy="72" rx="4" ry="2" fill={color} opacity="0.5" />
+            <ellipse cx="65" cy="72" rx="4" ry="2" fill={color} opacity="0.5" />
+            {/* Shine on cap */}
+            <ellipse cx="35" cy="25" rx="15" ry="10" fill={`url(#shine-${avatarId})`} />
           </g>
         )}
       </svg>
@@ -1106,6 +1272,7 @@ export default function App() {
   const [newMember, setNewMember] = useState(null);
   const [muted, setMuted] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
+  const [audioReady, setAudioReady] = useState(false);
   const audioRef = useRef(null);
   const woohooRef = useRef(null);
   const booRef = useRef(null);
@@ -1113,21 +1280,38 @@ export default function App() {
   // Initialize audio elements
   useEffect(() => {
     // Main music
-    const audio = new Audio(MUSIC_URL);
+    const audio = new Audio();
+    audio.crossOrigin = "anonymous";
     audio.loop = true;
-    audio.volume = 0;
+    audio.volume = 0.15;
     audio.preload = "auto";
+    
+    // Try to load the audio
+    audio.src = MUSIC_URL;
+    audio.addEventListener('canplaythrough', () => {
+      setAudioReady(true);
+      console.log('Music loaded and ready!');
+    });
+    audio.addEventListener('error', (e) => {
+      console.log('Music load error:', e);
+      // Try fallback music
+      audio.src = "https://cdn.freesound.org/previews/514/514414_1648170-lq.mp3";
+    });
     audioRef.current = audio;
     
     // Sound effects
-    const woohoo = new Audio(WOOHOO_URL);
+    const woohoo = new Audio();
+    woohoo.crossOrigin = "anonymous";
     woohoo.preload = "auto";
-    woohoo.volume = 0.7;
+    woohoo.volume = 0.8;
+    woohoo.src = WOOHOO_URL;
     woohooRef.current = woohoo;
     
-    const boo = new Audio(BOO_URL);
+    const boo = new Audio();
+    boo.crossOrigin = "anonymous";
     boo.preload = "auto";
-    boo.volume = 0.6;
+    boo.volume = 0.7;
+    boo.src = BOO_URL;
     booRef.current = boo;
     
     return () => {
@@ -1139,7 +1323,8 @@ export default function App() {
   // Update music volume based on screen
   useEffect(() => {
     if (!audioRef.current || !audioStarted) return;
-    const targetVolume = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.15 : 0.4;
+    const targetVolume = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.2 : 0.5;
+    // Smooth volume transition
     audioRef.current.volume = targetVolume;
   }, [screen, muted, audioStarted]);
   
@@ -1148,10 +1333,10 @@ export default function App() {
     try {
       if (type === "woohoo" && woohooRef.current) {
         woohooRef.current.currentTime = 0;
-        woohooRef.current.play().catch(() => {});
+        woohooRef.current.play().catch(e => console.log("Woohoo play error:", e));
       } else if (type === "boo" && booRef.current) {
         booRef.current.currentTime = 0;
-        booRef.current.play().catch(() => {});
+        booRef.current.play().catch(e => console.log("Boo play error:", e));
       }
     } catch (e) {
       console.log("Sound play failed:", e);
@@ -1159,15 +1344,28 @@ export default function App() {
   };
   
   const handleStart = async () => {
-    // Start music on first user interaction
+    // Start music on first user interaction (required by browsers)
     if (audioRef.current && !audioStarted) {
       try {
-        await audioRef.current.play();
-        setAudioStarted(true);
+        // Resume AudioContext if needed (for some browsers)
+        if (window.AudioContext || window.webkitAudioContext) {
+          const ctx = new (window.AudioContext || window.webkitAudioContext)();
+          if (ctx.state === 'suspended') await ctx.resume();
+        }
+        
+        audioRef.current.volume = 0.2;
+        const playPromise = audioRef.current.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            console.log('Music started!');
+            setAudioStarted(true);
+          }).catch(e => {
+            console.log("Music play blocked:", e);
+            setAudioStarted(true); // Still mark as started so UI updates
+          });
+        }
       } catch (e) {
-        console.log("Music autoplay blocked:", e);
-        // Try again with user gesture
-        audioRef.current.play().catch(() => {});
+        console.log("Music start error:", e);
         setAudioStarted(true);
       }
     }
