@@ -19,19 +19,10 @@ const C = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SOUND EFFECTS - Club/Techno vibes 🎵
+// SOUND EFFECTS - Club/Techno vibes 🎵 (hosted locally for reliability)
 // ═══════════════════════════════════════════════════════════════════════════════
-// Club music - electronic/techno (SoundHelix - high BPM electronic)
-const MUSIC_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-// Backup music URLs
-const MUSIC_FALLBACKS = [
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-];
-// Success sound
-const WOOHOO_URL = "https://samplelib.com/lib/preview/mp3/sample-3s.mp3";
-// Fail sound  
-const BOO_URL = "https://samplelib.com/lib/preview/mp3/sample-6s.mp3";
+// Club music - electronic/techno (hosted in /public for no glitching!)
+const MUSIC_URL = "./club-beat.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 3D AVATAR DEFINITIONS - 50+ unique avatars!
@@ -1275,77 +1266,62 @@ export default function App() {
   const [audioStarted, setAudioStarted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
   const audioRef = useRef(null);
-  const woohooRef = useRef(null);
-  const booRef = useRef(null);
   
-  // Initialize audio elements
+  // Initialize audio - simple and reliable
   useEffect(() => {
-    let fallbackIndex = 0;
-    
-    // Main music
-    const audio = new Audio();
+    // Main music - locally hosted, no network issues!
+    const audio = new Audio(MUSIC_URL);
     audio.loop = true;
-    audio.volume = 0.25;
-    audio.preload = "auto";
-    
-    const tryLoadMusic = (url) => {
-      console.log('Trying to load music from:', url);
-      audio.src = url;
-      audio.load();
-    };
+    audio.volume = 0.35;
+    audioRef.current = audio;
     
     audio.addEventListener('canplaythrough', () => {
       setAudioReady(true);
-      console.log('🎵 Music loaded and ready!');
+      console.log('🎵 Club beat loaded!');
     });
-    
-    audio.addEventListener('error', () => {
-      console.log('Music failed, trying fallback...');
-      if (fallbackIndex < MUSIC_FALLBACKS.length) {
-        tryLoadMusic(MUSIC_FALLBACKS[fallbackIndex]);
-        fallbackIndex++;
-      }
-    });
-    
-    // Start with primary URL
-    tryLoadMusic(MUSIC_URL);
-    audioRef.current = audio;
-    
-    // Sound effects - simple approach
-    const woohoo = new Audio(WOOHOO_URL);
-    woohoo.volume = 0.8;
-    woohooRef.current = woohoo;
-    
-    const boo = new Audio(BOO_URL);
-    boo.volume = 0.7;
-    booRef.current = boo;
     
     return () => {
       audio.pause();
-      audio.src = "";
     };
   }, []);
   
   // Update music volume based on screen
   useEffect(() => {
     if (!audioRef.current || !audioStarted) return;
-    const targetVolume = muted ? 0 : screen === "landing" ? 0 : screen === "bouncer" ? 0.2 : 0.5;
-    // Smooth volume transition
+    const targetVolume = muted ? 0 : screen === "bouncer" ? 0.25 : 0.4;
     audioRef.current.volume = targetVolume;
   }, [screen, muted, audioStarted]);
   
+  // Simple sound effects using Web Audio API (no external files needed)
   const playSound = (type) => {
     if (muted) return;
     try {
-      if (type === "woohoo" && woohooRef.current) {
-        woohooRef.current.currentTime = 0;
-        woohooRef.current.play().catch(e => console.log("Woohoo play error:", e));
-      } else if (type === "boo" && booRef.current) {
-        booRef.current.currentTime = 0;
-        booRef.current.play().catch(e => console.log("Boo play error:", e));
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+      
+      if (type === "woohoo") {
+        // Happy ascending tone
+        oscillator.frequency.setValueAtTime(400, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.3);
+      } else if (type === "boo") {
+        // Sad descending tone
+        oscillator.frequency.setValueAtTime(400, ctx.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+        oscillator.start(ctx.currentTime);
+        oscillator.stop(ctx.currentTime + 0.4);
       }
     } catch (e) {
-      console.log("Sound play failed:", e);
+      console.log("Sound effect error:", e);
     }
   };
   
