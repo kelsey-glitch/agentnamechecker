@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 // ═══════════════════════════════════════════════════════════════════════════════
 // DESIGN TOKENS
 // ═══════════════════════════════════════════════════════════════════════════════
-const C = {
+const VERSION = "v2.0"; const C = {
   bg: "#0a0a12",
   bgLight: "#12121f",
   bgCard: "#1a1a2e",
@@ -1390,3 +1390,4 @@ export default function App() {
   );
   return <><BouncerScreen bannedList={bannedList} onApproved={handleEnterClub} playSound={playSound} /><MuteBtn /></>;
 }
+// Cache bust 1771977671
