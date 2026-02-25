@@ -23,10 +23,10 @@ const VERSION = "v2.0"; const C = {
 // ═══════════════════════════════════════════════════════════════════════════════
 // Club music - electronic beat (absolute path for GitHub Pages)
 const MUSIC_URL = "/agentnamechecker/club-beat.mp3";
-// WOOHOO - crowd cheer!
-const WOOHOO_URL = "https://cdn.freesound.org/previews/270/270402_5123851-lq.mp3";
-// BOO - fail sound
-const BOO_URL = "https://cdn.freesound.org/previews/362/362205_6629901-lq.mp3";
+// WOOHOO - quick celebration (1-2 sec)
+const WOOHOO_URL = "https://cdn.freesound.org/previews/397/397354_4284968-lq.mp3";
+// BOO/GET OUT - quick rejection (1-2 sec)
+const BOO_URL = "https://cdn.freesound.org/previews/511/511484_6890478-lq.mp3";
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 3D AVATAR DEFINITIONS - 50+ unique avatars!
