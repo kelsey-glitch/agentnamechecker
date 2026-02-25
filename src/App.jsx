@@ -22,7 +22,7 @@ const VERSION = "v2.0"; const C = {
 // SOUND EFFECTS - Club/Techno vibes 🎵
 // ═══════════════════════════════════════════════════════════════════════════════
 // Club music - electronic beat (absolute path for GitHub Pages)
-const MUSIC_URL = "/VIPAIAGENTNAMECHECKERGAME/club-beat.mp3";
+const MUSIC_URL = "/agentnamechecker/club-beat.mp3";
 // WOOHOO - short celebration ding (1-2 sec)
 const WOOHOO_URL = "https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3";
 // BOO - fail sound
