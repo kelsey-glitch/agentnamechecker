@@ -610,7 +610,7 @@ const INITIAL_BANNED = [
   { name: "Cody", boss: "Shawn", avatarId: "robot" },
   { name: "Kitty", boss: "Cat", avatarId: "cat-coral" },
   { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly-violet" },
-  { name: "Samantha", boss: "Dr. Mike", avatarId: "brain-pink" },
+  { name: "Samantha", boss: "Dr. Mike", avatarId: "robot-pink" },
   { name: "Shadowfax", boss: "Kelsey", avatarId: "horse-white" },
   { name: "Claude", boss: "Dario (Anthropic)", avatarId: "ghost-purple" },
   { name: "Gemini", boss: "Sundar (Google)", avatarId: "star-gold" },
