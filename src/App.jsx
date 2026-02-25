@@ -481,12 +481,12 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
           <g filter={`url(#shadow-${avatarId})`}>
             {/* Face - white */}
             <ellipse cx="50" cy="50" rx="38" ry="35" fill="#ffffff" />
-            {/* Ears - black */}
-            <circle cx="18" cy="22" r="14" fill="#1a1a2e" />
-            <circle cx="82" cy="22" r="14" fill="#1a1a2e" />
-            {/* Eye patches - black */}
-            <ellipse cx="32" cy="45" rx="14" ry="16" fill="#1a1a2e" />
-            <ellipse cx="68" cy="45" rx="14" ry="16" fill="#1a1a2e" />
+            {/* Ears - colored */}
+            <circle cx="18" cy="22" r="14" fill={darkColor} />
+            <circle cx="82" cy="22" r="14" fill={darkColor} />
+            {/* Eye patches - colored */}
+            <ellipse cx="32" cy="45" rx="14" ry="16" fill={color} />
+            <ellipse cx="68" cy="45" rx="14" ry="16" fill={color} />
             {/* Eyes */}
             <circle cx="32" cy="45" r="6" fill="#ffffff" />
             <circle cx="68" cy="45" r="6" fill="#ffffff" />
@@ -495,12 +495,12 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
             <circle cx="34" cy="43" r="1" fill="#ffffff" />
             <circle cx="70" cy="43" r="1" fill="#ffffff" />
             {/* Nose */}
-            <ellipse cx="50" cy="60" rx="6" ry="4" fill="#1a1a2e" />
+            <ellipse cx="50" cy="60" rx="6" ry="4" fill={darkColor} />
             {/* Mouth */}
-            <path d="M44,68 Q50,74 56,68" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
+            <path d="M44,68 Q50,74 56,68" fill="none" stroke={darkColor} strokeWidth="2" strokeLinecap="round" />
             {/* Blush */}
-            <ellipse cx="25" cy="60" rx="6" ry="4" fill={color} opacity="0.4" />
-            <ellipse cx="75" cy="60" rx="6" ry="4" fill={color} opacity="0.4" />
+            <ellipse cx="25" cy="60" rx="6" ry="4" fill={color} opacity="0.5" />
+            <ellipse cx="75" cy="60" rx="6" ry="4" fill={color} opacity="0.5" />
             {/* Shine */}
             <ellipse cx="35" cy="30" rx="15" ry="10" fill={`url(#shine-${avatarId})`} />
           </g>
