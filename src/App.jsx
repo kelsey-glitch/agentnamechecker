@@ -608,12 +608,12 @@ function adjustBrightness(hex, percent) {
 // ═══════════════════════════════════════════════════════════════════════════════
 const INITIAL_BANNED = [
   { name: "Cody", boss: "Shawn", avatarId: "robot" },
-  { name: "Kitty", boss: "Cat", avatarId: "cat" },
-  { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly" },
-  { name: "Samantha", boss: "Dr. Mike", avatarId: "gem" },
-  { name: "Shadowfax", boss: "Kelsey", avatarId: "horse" },
-  { name: "Claude", boss: "Dario (Anthropic)", avatarId: "ghost" },
-  { name: "Gemini", boss: "Sundar (Google)", avatarId: "star" },
+  { name: "Kitty", boss: "Cat", avatarId: "cat-coral" },
+  { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly-violet" },
+  { name: "Samantha", boss: "Dr. Mike", avatarId: "brain-pink" },
+  { name: "Shadowfax", boss: "Kelsey", avatarId: "horse-white" },
+  { name: "Claude", boss: "Dario (Anthropic)", avatarId: "ghost-purple" },
+  { name: "Gemini", boss: "Sundar (Google)", avatarId: "star-gold" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
