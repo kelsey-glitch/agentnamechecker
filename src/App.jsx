@@ -560,6 +560,9 @@ function adjustBrightness(hex, percent) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // INITIAL BANNED NAMES WITH BOSSES
 // ═══════════════════════════════════════════════════════════════════════════════
+// API endpoint for persistent storage
+const API_URL = "https://agentnamechecker-api.onrender.com/api";
+
 const INITIAL_BANNED = [
   { name: "Cody", boss: "Shawn", avatarId: "robot" },
   { name: "Kitty", boss: "Cat", avatarId: "cat-coral" },           // Orange cat
@@ -1301,9 +1304,26 @@ export default function App() {
   const [muted, setMuted] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
+  const [loading, setLoading] = useState(true);
   const audioRef = useRef(null);
   const woohooRef = useRef(null);
   const booRef = useRef(null);
+  
+  // Load agents from API on mount
+  useEffect(() => {
+    fetch(`${API_URL}/agents`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setBannedList(data);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.log('API load error, using defaults:', err);
+        setLoading(false);
+      });
+  }, []);
   
   // Initialize all audio
   useEffect(() => {
@@ -1403,7 +1423,15 @@ export default function App() {
   
   const [showConfetti, setShowConfetti] = useState(false);
   
-  const handleEnterClub = (member) => {
+  const handleEnterClub = async (member) => {
+    // Save to API (fire and forget - don't block UI)
+    fetch(`${API_URL}/agents`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(member)
+    }).catch(err => console.log('API save error:', err));
+    
+    // Update local state immediately for snappy UX
     setBannedList(prev => [...prev, member]);
     setNewMember(member);
     setShowConfetti(true);
