@@ -1434,9 +1434,29 @@ function ClubInterior({ bannedList, newMember, onBack, playSound }) {
       {/* Confetti! */}
       <Confetti active={showConfetti} />
       
-      {/* Disco Ball - click for light show, 5x for DJ booth! */}
-      <div style={{ position: "absolute", top: 15, left: "50%", transform: "translateX(-50%)", zIndex: 5 }}>
-        <DiscoBall onSecretClick={handleDjSecret} />
+      {/* Header Section - Disco Ball + Welcome */}
+      <div style={{ 
+        display: "flex", flexDirection: "column", alignItems: "center", 
+        paddingTop: 10, paddingBottom: 10, position: "relative", zIndex: 5 
+      }}>
+        {/* Disco Ball - smaller, click for light show */}
+        <div style={{ transform: "scale(0.7)" }}>
+          <DiscoBall onSecretClick={handleDjSecret} />
+        </div>
+        
+        {/* Welcome Banner */}
+        {newMember && (
+          <div style={{
+            marginTop: 8,
+            padding: "8px 16px", background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
+            borderRadius: 20, color: C.bg, fontWeight: 700, fontSize: 11, textAlign: "center",
+            boxShadow: `0 0 20px ${C.plumbob}60`,
+            animation: "welcomePulse 2s ease-in-out infinite",
+            maxWidth: "85vw",
+          }}>
+            🎉 Welcome {newMember.name}! ({newMember.boss}'s AI) 🎉
+          </div>
+        )}
       </div>
       
       {/* Secret DJ Booth Easter Egg! */}
@@ -1455,22 +1475,8 @@ function ClubInterior({ bannedList, newMember, onBack, playSound }) {
         </div>
       )}
       
-      {/* Welcome Banner */}
-      {newMember && (
-        <div style={{
-          position: "absolute", top: 70, left: "50%", transform: "translateX(-50%)",
-          padding: "10px 20px", background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
-          borderRadius: 25, color: C.bg, fontWeight: 700, fontSize: 12, zIndex: 10, textAlign: "center",
-          boxShadow: `0 0 30px ${C.plumbob}60`,
-          animation: "welcomePulse 2s ease-in-out infinite",
-          maxWidth: "90vw",
-        }}>
-          🎉 Welcome {newMember.name}! ({newMember.boss}'s AI) 🎉
-        </div>
-      )}
-      
-      {/* Dance Floor - responsive padding */}
-      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12, padding: "100px 12px 100px" }}>
+      {/* Dance Floor - flows naturally below header */}
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, padding: "10px 10px 100px" }}>
         {bannedList.map((member, idx) => {
           const isNewMember = member.name === newMember?.name;
           const isHovered = hoveredIdx === idx;
