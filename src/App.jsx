@@ -1711,7 +1711,26 @@ export default function App() {
     </button>
   );
   
-  const handleEnterClub = (member) => {
+  const handleEnterClub = async (member) => {
+    // Save to API
+    try {
+      const res = await fetch('https://agentnamechecker-api.onrender.com/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(member)
+      });
+      const data = await res.json();
+      if (!data.success) {
+        console.error('Save failed:', data.error);
+        return; // Don't proceed if save failed
+      }
+      console.log('✅ Saved to database:', member.name, data.testMode ? '(test mode)' : '');
+    } catch (err) {
+      console.error('API error:', err);
+      return; // Don't proceed if API call failed
+    }
+    
+    // Update local state and show club
     setBannedList(prev => [...prev, member]);
     setNewMember(member);
     setScreen("club");
