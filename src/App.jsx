@@ -22,11 +22,49 @@ const VERSION = "v2.0"; const C = {
 // SOUND EFFECTS - Club/Techno vibes 🎵
 // ═══════════════════════════════════════════════════════════════════════════════
 // Club music - electronic beat (absolute path for GitHub Pages)
-const MUSIC_URL = "/agentnamechecker/club-beat.mp3";
-// WOOHOO - quick celebration (1-2 sec)
-const WOOHOO_URL = "https://cdn.freesound.org/previews/397/397354_4284968-lq.mp3";
-// BOO/GET OUT - quick rejection (1-2 sec)
-const BOO_URL = "https://cdn.freesound.org/previews/511/511484_6890478-lq.mp3";
+const MUSIC_URL = "/VIPAIAGENTNAMECHECKERGAME/club-beat.mp3";
+// WOOHOO - short celebration ding (1-2 sec)
+const WOOHOO_URL = "https://cdn.freesound.org/previews/320/320655_5260872-lq.mp3";
+// BOO - fail sound
+const BOO_URL = "https://cdn.freesound.org/previews/362/362205_6629901-lq.mp3";
+// Simlish-style welcome sounds (synth/glitch greetings)
+const SIMLISH_URLS = [
+  "https://cdn.freesound.org/previews/220/220173_4100837-lq.mp3", // quirky blip
+  "https://cdn.freesound.org/previews/341/341695_5858296-lq.mp3", // synth hello
+  "https://cdn.freesound.org/previews/253/253886_4597795-lq.mp3", // cheerful ding
+];
+// Teleport/beam in sound
+const TELEPORT_URL = "https://cdn.freesound.org/previews/528/528823_3162593-lq.mp3";
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// AI PERSONALITY - Greetings & introductions for each avatar type
+// ═══════════════════════════════════════════════════════════════════════════════
+const AI_GREETINGS = {
+  robot: ["Beep boop! Processing friendship protocols...", "01001000 01101001! That's 'Hi' in binary!", "Systems nominal. Vibes: excellent."],
+  cat: ["*purrs in digital*", "Meow? I mean... hello, human.", "I knocked your data off the table. You're welcome."],
+  horse: ["*majestic neigh* Ready to gallop through the cloud!", "Hay there! Get it? HAY? 🐴", "Stable connection established!"],
+  owl: ["Whooo wants to party? I do!", "*wise nodding* I've seen things... in the database.", "Hoot hoot! Knowledge is power!"],
+  star: ["✨ Shine bright like me! ✨", "I'm literally a star. No big deal.", "Twinkle twinkle, fellow AI~"],
+  blob: ["*wobbles enthusiastically*", "I'm amorphous and I know it!", "Blob blob blob! (That's hello in Blob)"],
+  gem: ["Pressure made me perfect 💎", "*sparkles aggressively*", "I'm precious and I know my worth!"],
+  spark: ["⚡ Zap! Did you feel that energy?", "I'm electric! Literally!", "Sparks flying everywhere!"],
+  ghost: ["Boo! JK, I'm friendly 👻", "*phases through walls casually*", "I'm dead inside... but in a fun way!"],
+  alien: ["Greetings, Earth-based intelligence!", "Take me to your... dance floor!", "👽 *mysterious alien noises*"],
+  dragon: ["*breathes fire responsibly*", "I'm a dragon. Yes, I'm that cool.", "Rawr means 'hello' in dinosaur!"],
+  butterfly: ["*flutters dramatically*", "I used to be a bug. Glow up complete!", "Spread your wings, friend! 🦋"],
+  octopus: ["8 arms, 8 times the hugs!", "*ink clouds excitedly*", "I'm very good at multitasking!"],
+  fox: ["What does the fox say? ...Hello!", "*clever fox noises*", "Sly to meet you! 🦊"],
+  panda: ["*eats bamboo and codes*", "I'm endangered and adorable!", "Black, white, and rad all over!"],
+  unicorn: ["✨ Magic is real, I'm proof! ✨", "*rainbow sparkles everywhere*", "Neighhhh-mazing to meet you!"],
+  mushroom: ["I'm a fun-gi! Get it?", "*spores happy thoughts*", "There's not mushroom for more puns!"],
+  brain: ["🧠 Big brain energy activated!", "I'm thinking... always thinking!", "Mind = blown. Literally, I'm a brain."],
+  spark: ["⚡ Zap! Energy incoming!", "I'm sparking with ideas!", "Let's light this up! ✨"],
+  default: ["Hello, fellow AI!", "Ready to collaborate!", "Nice to meet you! 🤖"],
+};
+
+// Dance move types
+const DANCE_MOVES = ["bounce", "robot", "wave", "spin"];
+const DANCE_MOVE_NAMES = { bounce: "Bounce", robot: "Robot", wave: "Wave", spin: "Spin" };
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // 3D AVATAR DEFINITIONS - 50+ unique avatars!
@@ -60,7 +98,10 @@ const COLOR_VARIANTS = [
   { suffix: "-mint", color: "#80CBC4", name: "Mint" },
   { suffix: "-coral", color: "#FF8A65", name: "Coral" },
   { suffix: "-violet", color: "#B39DDB", name: "Violet" },
-  { suffix: "-white", color: "#F5F5F5", name: "White" },
+  { suffix: "-white", color: "#FFFFFF", name: "White" },
+  { suffix: "-silver", color: "#C0C0C0", name: "Silver" },
+  { suffix: "-red", color: "#EF5350", name: "Red" },
+  { suffix: "-purple", color: "#AB47BC", name: "Purple" },
 ];
 
 // Generate all avatar combinations (17 shapes × 6 colors = 102 options!)
@@ -78,9 +119,22 @@ const AVATAR_OPTIONS = BASE_SHAPES.flatMap(shape =>
 // 3D AVATAR SVG COMPONENT - Clay/Pixar style rendering
 // ═══════════════════════════════════════════════════════════════════════════════
 function Avatar3D({ avatarId, size = 60, dancing = false }) {
-  const avatar = AVATAR_OPTIONS.find(a => a.id === avatarId) || AVATAR_OPTIONS[0];
-  const color = avatar.color;
-  const type = avatar.type || avatarId.split("-")[0]; // Extract base type
+  // Find the exact avatar or build from parts
+  let avatar = AVATAR_OPTIONS.find(a => a.id === avatarId);
+  let color, type;
+  
+  if (avatar) {
+    color = avatar.color;
+    type = avatar.type;
+  } else {
+    // Fallback: extract type and color from avatarId (e.g., "horse-white" -> horse + white)
+    const parts = avatarId?.split("-") || ["robot"];
+    type = parts[0];
+    const colorSuffix = parts[1] ? `-${parts[1]}` : "";
+    const colorVariant = COLOR_VARIANTS.find(v => v.suffix === colorSuffix);
+    color = colorVariant?.color || "#4FC3F7"; // Default blue if not found
+  }
+  
   const darkColor = adjustBrightness(color, -30);
   const lightColor = adjustBrightness(color, 40);
   
@@ -515,31 +569,23 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
         
         {type === "brain" && (
           <g filter={`url(#shadow-${avatarId})`}>
-            {/* Main brain shape - wrinkly! */}
-            <ellipse cx="50" cy="50" rx="38" ry="35" fill={`url(#grad-${avatarId})`} />
-            {/* Brain wrinkles/folds */}
-            <path d="M25,35 Q35,30 40,40 Q45,50 35,55" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
-            <path d="M30,50 Q40,45 45,55 Q50,65 40,70" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
-            <path d="M55,25 Q65,30 70,40" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
-            <path d="M60,40 Q70,45 75,55 Q78,65 70,70" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
-            <path d="M45,20 Q50,15 55,20" fill="none" stroke={darkColor} strokeWidth="2" strokeLinecap="round" />
-            <path d="M50,30 Q55,35 50,45 Q45,55 50,60" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
-            {/* Center division */}
-            <path d="M50,18 Q48,40 50,50 Q52,60 50,82" fill="none" stroke={darkColor} strokeWidth="2" strokeLinecap="round" />
-            {/* Cute face */}
-            <circle cx="38" cy="45" r="5" fill="#ffffff" />
-            <circle cx="62" cy="45" r="5" fill="#ffffff" />
-            <circle cx="39" cy="45" r="2.5" fill="#1a1a2e" />
-            <circle cx="63" cy="45" r="2.5" fill="#1a1a2e" />
-            <circle cx="40" cy="44" r="1" fill="#ffffff" />
-            <circle cx="64" cy="44" r="1" fill="#ffffff" />
-            {/* Smile */}
-            <path d="M42,58 Q50,65 58,58" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
-            {/* Blush */}
-            <ellipse cx="30" cy="55" rx="5" ry="3" fill="#FF9999" opacity="0.5" />
-            <ellipse cx="70" cy="55" rx="5" ry="3" fill="#FF9999" opacity="0.5" />
+            {/* Brain lobes */}
+            <ellipse cx="35" cy="40" rx="25" ry="30" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="65" cy="40" rx="25" ry="30" fill={`url(#grad-${avatarId})`} />
+            <ellipse cx="50" cy="55" rx="20" ry="18" fill={`url(#grad-${avatarId})`} />
+            {/* Brain folds/wrinkles */}
+            <path d="M30,25 Q35,35 30,45" fill="none" stroke={darkColor} strokeWidth="2" opacity="0.6" />
+            <path d="M40,20 Q45,35 38,50" fill="none" stroke={darkColor} strokeWidth="2" opacity="0.6" />
+            <path d="M60,20 Q55,35 62,50" fill="none" stroke={darkColor} strokeWidth="2" opacity="0.6" />
+            <path d="M70,25 Q65,35 70,45" fill="none" stroke={darkColor} strokeWidth="2" opacity="0.6" />
+            {/* Face */}
+            <circle cx="40" cy="50" r="4" fill="#1a1a2e" />
+            <circle cx="60" cy="50" r="4" fill="#1a1a2e" />
+            <circle cx="41" cy="49" r="1.5" fill="#ffffff" />
+            <circle cx="61" cy="49" r="1.5" fill="#ffffff" />
+            <path d="M45,65 Q50,70 55,65" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
             {/* Shine */}
-            <ellipse cx="35" cy="30" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+            <ellipse cx="30" cy="28" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
           </g>
         )}
       </svg>
@@ -560,17 +606,14 @@ function adjustBrightness(hex, percent) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // INITIAL BANNED NAMES WITH BOSSES
 // ═══════════════════════════════════════════════════════════════════════════════
-// API endpoint for persistent storage
-const API_URL = "https://agentnamechecker-api.onrender.com/api";
-
 const INITIAL_BANNED = [
   { name: "Cody", boss: "Shawn", avatarId: "robot" },
-  { name: "Kitty", boss: "Cat", avatarId: "cat-coral" },           // Orange cat
-  { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly-violet" }, // Purple butterfly
-  { name: "Samantha", boss: "Dr. Mike", avatarId: "brain-pink" },  // Brain
-  { name: "Shadowfax", boss: "Kelsey", avatarId: "horse-white" },  // White horse
+  { name: "Kitty", boss: "Cat", avatarId: "cat" },
+  { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly" },
+  { name: "Samantha", boss: "Dr. Mike", avatarId: "gem" },
+  { name: "Shadowfax", boss: "Kelsey", avatarId: "horse" },
   { name: "Claude", boss: "Dario (Anthropic)", avatarId: "ghost" },
-  { name: "Gemini", boss: "Sundar (Google)", avatarId: "star-gold" }, // Gold star
+  { name: "Gemini", boss: "Sundar (Google)", avatarId: "star" },
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -663,46 +706,7 @@ function Plumbob({ size = 40 }) {
   );
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// CONFETTI - Celebration when entering the club!
-// ═══════════════════════════════════════════════════════════════════════════════
-function Confetti({ active }) {
-  if (!active) return null;
-  
-  const confettiPieces = [...Array(50)].map((_, i) => ({
-    id: i,
-    left: Math.random() * 100,
-    delay: Math.random() * 2,
-    duration: 2 + Math.random() * 2,
-    color: [C.plumbob, C.neonBlue, C.neon, C.gold, C.purple][Math.floor(Math.random() * 5)],
-    rotation: Math.random() * 360,
-    size: 6 + Math.random() * 8,
-  }));
-  
-  return (
-    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", zIndex: 100, overflow: "hidden" }}>
-      {confettiPieces.map(p => (
-        <div key={p.id} style={{
-          position: "absolute",
-          left: `${p.left}%`,
-          top: -20,
-          width: p.size,
-          height: p.size * 0.6,
-          background: p.color,
-          borderRadius: 2,
-          animation: `confettiFall ${p.duration}s ease-out ${p.delay}s forwards`,
-          transform: `rotate(${p.rotation}deg)`,
-        }} />
-      ))}
-      <style>{`
-        @keyframes confettiFall {
-          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-      `}</style>
-    </div>
-  );
-}
+// (Confetti component moved to near DiscoBall)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // SPARKLES - Background particle effect
@@ -1173,95 +1177,363 @@ function BouncerScreen({ bannedList, onApproved, playSound }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// 3D DISCO BALL
+// CONFETTI EXPLOSION COMPONENT 🎊
 // ═══════════════════════════════════════════════════════════════════════════════
-function DiscoBall() {
+function Confetti({ active, duration = 3000 }) {
+  const [particles, setParticles] = useState([]);
+  
+  useEffect(() => {
+    if (!active) return;
+    const colors = [C.plumbob, C.neonBlue, C.neon, C.gold, C.purple, "#FF6B6B", "#4ECDC4"];
+    const newParticles = Array.from({ length: 60 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      delay: Math.random() * 0.5,
+      size: 6 + Math.random() * 8,
+      rotation: Math.random() * 360,
+      type: Math.random() > 0.5 ? "square" : "circle",
+    }));
+    setParticles(newParticles);
+    const timer = setTimeout(() => setParticles([]), duration);
+    return () => clearTimeout(timer);
+  }, [active, duration]);
+  
+  if (particles.length === 0) return null;
+  
   return (
-    <div style={{ position: "relative", animation: "spin 4s linear infinite" }}>
-      <svg width="70" height="70" viewBox="0 0 70 70">
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, pointerEvents: "none", zIndex: 9999, overflow: "hidden" }}>
+      {particles.map(p => (
+        <div key={p.id} style={{
+          position: "absolute",
+          left: `${p.x}%`,
+          top: -20,
+          width: p.size,
+          height: p.type === "square" ? p.size : p.size * 0.6,
+          background: p.color,
+          borderRadius: p.type === "circle" ? "50%" : 2,
+          animation: `confettiFall ${2 + Math.random()}s ease-out forwards`,
+          animationDelay: `${p.delay}s`,
+          transform: `rotate(${p.rotation}deg)`,
+        }} />
+      ))}
+      <style>{`
+        @keyframes confettiFall {
+          0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// TELEPORT BEAM-IN ANIMATION 🌟
+// ═══════════════════════════════════════════════════════════════════════════════
+function TeleportBeam({ active, children, onComplete }) {
+  // Start in beaming state if active, otherwise hidden
+  const [phase, setPhase] = useState(active ? "beaming" : "hidden");
+  
+  useEffect(() => {
+    if (!active) {
+      setPhase("hidden");
+      return;
+    }
+    setPhase("beaming");
+    const timer = setTimeout(() => {
+      setPhase("complete");
+      onComplete?.();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [active, onComplete]);
+  
+  // Always render children, just apply effects when active
+  if (phase === "hidden") return <>{children}</>;
+  
+  return (
+    <div style={{
+      position: "relative",
+      animation: phase === "beaming" ? "teleportIn 1.5s ease-out forwards" : "none",
+    }}>
+      {/* Beam effect */}
+      {phase === "beaming" && (
+        <div style={{
+          position: "absolute", top: "-200%", left: "50%", transform: "translateX(-50%)",
+          width: 4, height: "300%",
+          background: `linear-gradient(180deg, transparent, ${C.plumbob}, ${C.neonBlue}, transparent)`,
+          animation: "beamPulse 0.3s ease-in-out infinite",
+          zIndex: -1,
+        }} />
+      )}
+      {/* Sparkle ring */}
+      {phase === "beaming" && (
+        <div style={{
+          position: "absolute", top: "50%", left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 120, height: 120,
+          border: `3px solid ${C.plumbob}`,
+          borderRadius: "50%",
+          animation: "sparkleRing 1s ease-out forwards",
+          boxShadow: `0 0 30px ${C.plumbob}, inset 0 0 30px ${C.plumbob}40`,
+        }} />
+      )}
+      <div style={{ opacity: phase === "complete" ? 1 : 0.8 }}>{children}</div>
+      <style>{`
+        @keyframes teleportIn {
+          0% { transform: scale(0) translateY(-50px); opacity: 0; filter: brightness(3); }
+          50% { transform: scale(1.2) translateY(0); opacity: 0.8; filter: brightness(2); }
+          100% { transform: scale(1) translateY(0); opacity: 1; filter: brightness(1); }
+        }
+        @keyframes beamPulse {
+          0%, 100% { opacity: 0.8; width: 4px; }
+          50% { opacity: 1; width: 8px; }
+        }
+        @keyframes sparkleRing {
+          0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+          100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 3D DISCO BALL (with easter egg click!)
+// ═══════════════════════════════════════════════════════════════════════════════
+function DiscoBall({ size = "normal", onSecretClick }) {
+  const [lightShow, setLightShow] = useState(false);
+  const [clickCount, setClickCount] = useState(0);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
+  const ballSize = isMobile || size === "small" ? 50 : 70;
+  const raySize = lightShow ? (isMobile ? 150 : 350) : (isMobile || size === "small" ? 80 : 200);
+  
+  const handleClick = () => {
+    setLightShow(true);
+    setClickCount(c => c + 1);
+    setTimeout(() => setLightShow(false), 2000);
+    if (clickCount >= 4) {
+      onSecretClick?.();
+      setClickCount(0);
+    }
+  };
+  
+  return (
+    <div 
+      onClick={handleClick}
+      style={{ position: "relative", animation: "spin 4s linear infinite", cursor: "pointer" }}
+      title="Click me! 🪩"
+    >
+      <svg width={ballSize} height={ballSize} viewBox="0 0 70 70">
         <defs>
           <radialGradient id="discoBall" cx="30%" cy="30%">
-            <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="50%" stopColor="#cccccc" />
-            <stop offset="100%" stopColor="#666666" />
+            <stop offset="0%" stopColor={lightShow ? "#ffffff" : "#ffffff"} />
+            <stop offset="50%" stopColor={lightShow ? "#ffff00" : "#cccccc"} />
+            <stop offset="100%" stopColor={lightShow ? "#ff00ff" : "#666666"} />
           </radialGradient>
           <pattern id="discoTiles" patternUnits="userSpaceOnUse" width="10" height="10">
-            <rect width="9" height="9" fill="#aaa" rx="1" />
+            <rect width="9" height="9" fill={lightShow ? "#fff" : "#aaa"} rx="1" />
             <rect width="9" height="9" fill="#fff" opacity="0.3" rx="1" />
           </pattern>
         </defs>
-        <circle cx="35" cy="35" r="32" fill="url(#discoBall)" />
+        <circle cx="35" cy="35" r="32" fill="url(#discoBall)" style={{ filter: lightShow ? "brightness(1.5)" : "none" }} />
         <circle cx="35" cy="35" r="32" fill="url(#discoTiles)" opacity="0.4" />
         <circle cx="25" cy="25" r="8" fill="#fff" opacity="0.6" />
         <circle cx="22" cy="22" r="3" fill="#fff" opacity="0.9" />
       </svg>
-      {/* Light rays */}
+      {/* Light rays - animated when clicked! */}
       <div style={{
         position: "absolute", top: "50%", left: "50%",
-        width: 200, height: 200, transform: "translate(-50%, -50%)",
-        background: `conic-gradient(from 0deg, transparent, ${C.neonBlue}20, transparent, ${C.neon}20, transparent, ${C.plumbob}20, transparent)`,
-        borderRadius: "50%", animation: "discoRays 3s linear infinite",
+        width: raySize, height: raySize, transform: "translate(-50%, -50%)",
+        background: lightShow 
+          ? `conic-gradient(from 0deg, ${C.neon}, ${C.neonBlue}, ${C.plumbob}, ${C.gold}, ${C.purple}, ${C.neon})`
+          : `conic-gradient(from 0deg, transparent, ${C.neonBlue}20, transparent, ${C.neon}20, transparent, ${C.plumbob}20, transparent)`,
+        borderRadius: "50%", 
+        animation: lightShow ? "discoRays 0.5s linear infinite" : "discoRays 3s linear infinite",
+        pointerEvents: "none",
+        transition: "all 0.3s ease",
+        opacity: lightShow ? 0.6 : 1,
       }} />
     </div>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// CLUB INTERIOR
+// CLUB INTERIOR - Now with confetti, teleport, AI greetings & easter eggs!
 // ═══════════════════════════════════════════════════════════════════════════════
-function ClubInterior({ bannedList, newMember, onBack }) {
+function ClubInterior({ bannedList, newMember, onBack, playSound }) {
   const [hoveredIdx, setHoveredIdx] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [showTeleport, setShowTeleport] = useState(!!newMember);
+  const [djBoothOpen, setDjBoothOpen] = useState(false);
+  const [memberDances, setMemberDances] = useState({});
+  const simlishRef = useRef(null);
+  const teleportRef = useRef(null);
+  
+  // Play teleport + simlish sound on entry
+  useEffect(() => {
+    if (newMember) {
+      setShowConfetti(true);
+      // Play teleport sound
+      if (!teleportRef.current) {
+        teleportRef.current = new Audio(TELEPORT_URL);
+        teleportRef.current.volume = 0.5;
+      }
+      teleportRef.current.currentTime = 0;
+      teleportRef.current.play().catch(() => {});
+      
+      // Play random simlish greeting
+      setTimeout(() => {
+        const simlishUrl = SIMLISH_URLS[Math.floor(Math.random() * SIMLISH_URLS.length)];
+        if (!simlishRef.current) simlishRef.current = new Audio(simlishUrl);
+        else simlishRef.current.src = simlishUrl;
+        simlishRef.current.volume = 0.6;
+        simlishRef.current.play().catch(() => {});
+      }, 800);
+    }
+  }, [newMember]);
+  
+  // Get AI greeting based on avatar type
+  const getAiGreeting = (member) => {
+    const type = member.avatarId?.split("-")[0] || "default";
+    const greetings = AI_GREETINGS[type] || AI_GREETINGS.default;
+    // Use member name as seed for consistent greeting
+    const idx = member.name.charCodeAt(0) % greetings.length;
+    return greetings[idx];
+  };
+  
+  // Cycle dance move for a member
+  const cycleDance = (memberName) => {
+    setMemberDances(prev => {
+      const current = prev[memberName] || "bounce";
+      const idx = DANCE_MOVES.indexOf(current);
+      const next = DANCE_MOVES[(idx + 1) % DANCE_MOVES.length];
+      return { ...prev, [memberName]: next };
+    });
+  };
+  
+  // Secret DJ booth easter egg
+  const handleDjSecret = () => {
+    setDjBoothOpen(true);
+    playSound?.("woohoo");
+    setTimeout(() => setDjBoothOpen(false), 5000);
+  };
+  
+  const getDanceAnimation = (memberName, idx) => {
+    const dance = memberDances[memberName] || "bounce";
+    const speed = 0.4 + (idx % 4) * 0.1;
+    switch(dance) {
+      case "robot": return `danceRobot ${speed}s steps(4) infinite`;
+      case "wave": return `danceWave ${speed * 2}s ease-in-out infinite`;
+      case "spin": return `danceSpin ${speed * 3}s linear infinite`;
+      default: return `dance ${speed}s ease-in-out infinite alternate`;
+    }
+  };
   
   return (
     <div style={{ minHeight: "100vh", background: `linear-gradient(180deg, #0a0515 0%, #15051a 100%)`, position: "relative", overflow: "hidden" }}>
-      {/* Disco Ball */}
+      {/* Confetti! */}
+      <Confetti active={showConfetti} />
+      
+      {/* Disco Ball - click for light show, 5x for DJ booth! */}
       <div style={{ position: "absolute", top: 15, left: "50%", transform: "translateX(-50%)", zIndex: 5 }}>
-        <DiscoBall />
+        <DiscoBall onSecretClick={handleDjSecret} />
       </div>
+      
+      {/* Secret DJ Booth Easter Egg! */}
+      {djBoothOpen && (
+        <div style={{
+          position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+          background: `linear-gradient(135deg, ${C.bgCard}, ${C.purple}40)`,
+          border: `3px solid ${C.gold}`, borderRadius: 20, padding: 30, zIndex: 100,
+          textAlign: "center", boxShadow: `0 0 60px ${C.gold}40`,
+          animation: "djBooth 0.5s ease-out",
+        }}>
+          <div style={{ fontSize: 48, marginBottom: 10 }}>🎧</div>
+          <div style={{ fontSize: 20, fontWeight: 700, color: C.gold, marginBottom: 8 }}>SECRET DJ BOOTH!</div>
+          <div style={{ color: C.text, fontSize: 14 }}>You found the easter egg! 🥚✨</div>
+          <div style={{ color: C.textMuted, fontSize: 12, marginTop: 8 }}>VIP Medical Group knows how to party!</div>
+        </div>
+      )}
       
       {/* Welcome Banner */}
       {newMember && (
         <div style={{
-          position: "absolute", top: 95, left: "50%", transform: "translateX(-50%)",
-          padding: "12px 24px", background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
-          borderRadius: 25, color: C.bg, fontWeight: 700, fontSize: 14, zIndex: 10, textAlign: "center",
+          position: "absolute", top: 70, left: "50%", transform: "translateX(-50%)",
+          padding: "10px 20px", background: `linear-gradient(135deg, ${C.plumbob}, ${C.neonBlue})`,
+          borderRadius: 25, color: C.bg, fontWeight: 700, fontSize: 12, zIndex: 10, textAlign: "center",
           boxShadow: `0 0 30px ${C.plumbob}60`,
           animation: "welcomePulse 2s ease-in-out infinite",
+          maxWidth: "90vw",
         }}>
           🎉 Welcome {newMember.name}! ({newMember.boss}'s AI) 🎉
         </div>
       )}
       
-      {/* Dance Floor */}
-      <div style={{ paddingTop: 130, display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 14, padding: "130px 16px 100px" }}>
-        {bannedList.map((member, idx) => (
-          <div
-            key={member.name}
-            onMouseEnter={() => setHoveredIdx(idx)}
-            onMouseLeave={() => setHoveredIdx(null)}
-            style={{
-              position: "relative", background: member.name === newMember?.name ? `${C.plumbob}20` : C.bgCard,
-              border: `2px solid ${member.name === newMember?.name ? C.plumbob : C.purple}40`,
-              borderRadius: 14, padding: 14, width: 90, textAlign: "center", cursor: "pointer",
-              animation: `dance ${0.4 + (idx % 4) * 0.1}s ease-in-out infinite alternate`,
-              transform: hoveredIdx === idx ? "scale(1.1)" : "scale(1)", transition: "transform 0.2s",
-            }}
-          >
-            <Avatar3D avatarId={member.avatarId || "spark"} size={50} dancing={true} />
-            <div style={{ fontSize: 11, fontWeight: 600, color: C.text, marginTop: 6 }}>{member.name}</div>
-            
-            {hoveredIdx === idx && (
-              <div style={{
-                position: "absolute", bottom: "105%", left: "50%", transform: "translateX(-50%)",
-                background: C.bgLight, border: `2px solid ${C.gold}`, borderRadius: 10, padding: "10px 12px",
-                whiteSpace: "nowrap", zIndex: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
-              }}>
-                <div style={{ fontWeight: 700, color: C.text, fontSize: 13 }}>{member.name}</div>
-                <div style={{ color: C.gold, fontSize: 10, marginTop: 3 }}>Boss: {member.boss}</div>
+      {/* Dance Floor - responsive padding */}
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 12, padding: "100px 12px 100px" }}>
+        {bannedList.map((member, idx) => {
+          const isNewMember = member.name === newMember?.name;
+          const isHovered = hoveredIdx === idx;
+          const currentDance = memberDances[member.name] || "bounce";
+          
+          const memberCard = (
+            <div
+              key={member.name}
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
+              onClick={() => cycleDance(member.name)}
+              style={{
+                position: "relative", 
+                background: isNewMember ? `${C.plumbob}20` : C.bgCard,
+                border: `2px solid ${isNewMember ? C.plumbob : C.purple}40`,
+                borderRadius: 14, padding: 14, width: 90, textAlign: "center", cursor: "pointer",
+                animation: getDanceAnimation(member.name, idx),
+                transform: isHovered ? "scale(1.1)" : "scale(1)", 
+                transition: "transform 0.2s, box-shadow 0.2s",
+                boxShadow: isHovered ? `0 0 20px ${C.purple}40` : "none",
+              }}
+            >
+              <Avatar3D avatarId={member.avatarId || "spark"} size={50} dancing={true} />
+              <div style={{ fontSize: 11, fontWeight: 600, color: C.text, marginTop: 6 }}>{member.name}</div>
+              
+              {/* Dance move indicator */}
+              <div style={{ fontSize: 8, color: C.textMuted, marginTop: 2 }}>
+                {DANCE_MOVE_NAMES[currentDance]} 💃
               </div>
-            )}
-          </div>
-        ))}
+              
+              {/* AI Introduction tooltip on hover! */}
+              {isHovered && (
+                <div style={{
+                  position: "absolute", bottom: "110%", left: "50%", transform: "translateX(-50%)",
+                  background: C.bgLight, border: `2px solid ${C.gold}`, borderRadius: 12, padding: "12px 14px",
+                  minWidth: 180, maxWidth: 220, zIndex: 20, boxShadow: "0 4px 20px rgba(0,0,0,0.6)",
+                }}>
+                  <div style={{ fontWeight: 700, color: C.text, fontSize: 14 }}>{member.name}</div>
+                  <div style={{ color: C.gold, fontSize: 10, marginTop: 2 }}>Boss: {member.boss}</div>
+                  <div style={{ 
+                    color: C.neonBlue, fontSize: 11, marginTop: 8, fontStyle: "italic",
+                    lineHeight: 1.4, whiteSpace: "normal",
+                  }}>
+                    "{getAiGreeting(member)}"
+                  </div>
+                  <div style={{ fontSize: 8, color: C.textMuted, marginTop: 6 }}>
+                    Click to change dance! 👆
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+          
+          // Wrap new member in teleport beam
+          if (isNewMember && showTeleport) {
+            return (
+              <TeleportBeam key={member.name} active={true} onComplete={() => setShowTeleport(false)}>
+                {memberCard}
+              </TeleportBeam>
+            );
+          }
+          return memberCard;
+        })}
       </div>
       
       {/* Disco Lights */}
@@ -1284,11 +1556,27 @@ function ClubInterior({ bannedList, newMember, onBack }) {
       
       <style>{`
         @keyframes dance { 0% { transform: translateY(0) rotate(-2deg); } 100% { transform: translateY(-8px) rotate(2deg); } }
+        @keyframes danceRobot { 
+          0% { transform: translateY(0) rotate(0deg); } 
+          25% { transform: translateY(-5px) rotate(5deg); } 
+          50% { transform: translateY(0) rotate(0deg); } 
+          75% { transform: translateY(-5px) rotate(-5deg); } 
+          100% { transform: translateY(0) rotate(0deg); } 
+        }
+        @keyframes danceWave { 
+          0%, 100% { transform: translateY(0) scaleY(1); } 
+          50% { transform: translateY(-10px) scaleY(1.1); } 
+        }
+        @keyframes danceSpin { 
+          from { transform: rotate(0deg); } 
+          to { transform: rotate(360deg); } 
+        }
         @keyframes avatarBounce { 0% { transform: scale(1); } 100% { transform: scale(1.05) translateY(-2px); } }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes discoLights { 0% { opacity: 0.6; } 100% { opacity: 1; } }
         @keyframes discoRays { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
         @keyframes welcomePulse { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } }
+        @keyframes djBooth { 0% { transform: translate(-50%, -50%) scale(0); } 100% { transform: translate(-50%, -50%) scale(1); } }
       `}</style>
     </div>
   );
@@ -1304,26 +1592,9 @@ export default function App() {
   const [muted, setMuted] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
-  const [loading, setLoading] = useState(true);
   const audioRef = useRef(null);
   const woohooRef = useRef(null);
   const booRef = useRef(null);
-  
-  // Load agents from API on mount
-  useEffect(() => {
-    fetch(`${API_URL}/agents`)
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data) && data.length > 0) {
-          setBannedList(data);
-        }
-        setLoading(false);
-      })
-      .catch(err => {
-        console.log('API load error, using defaults:', err);
-        setLoading(false);
-      });
-  }, []);
   
   // Initialize all audio
   useEffect(() => {
@@ -1421,30 +1692,21 @@ export default function App() {
     </button>
   );
   
-  const [showConfetti, setShowConfetti] = useState(false);
-  
-  const handleEnterClub = async (member) => {
-    // Save to API (fire and forget - don't block UI)
-    fetch(`${API_URL}/agents`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(member)
-    }).catch(err => console.log('API save error:', err));
-    
-    // Update local state immediately for snappy UX
+  const handleEnterClub = (member) => {
     setBannedList(prev => [...prev, member]);
     setNewMember(member);
-    setShowConfetti(true);
     setScreen("club");
-    // Stop confetti after animation
-    setTimeout(() => setShowConfetti(false), 4000);
   };
   
   if (screen === "landing") return <LandingScreen onStart={handleStart} />;
   if (screen === "club") return (
     <>
-      <Confetti active={showConfetti} />
-      <ClubInterior bannedList={bannedList} newMember={newMember} onBack={() => { setNewMember(null); setScreen("bouncer"); }} />
+      <ClubInterior 
+        bannedList={bannedList} 
+        newMember={newMember} 
+        onBack={() => { setNewMember(null); setScreen("bouncer"); }} 
+        playSound={playSound}
+      />
       <MuteBtn />
     </>
   );
