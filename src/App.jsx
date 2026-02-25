@@ -1595,6 +1595,19 @@ export default function App() {
   const [screen, setScreen] = useState("landing");
   const [bannedList, setBannedList] = useState(INITIAL_BANNED);
   const [newMember, setNewMember] = useState(null);
+  
+  // Fetch agents from API on mount
+  useEffect(() => {
+    fetch('https://agentnamechecker-api.onrender.com/api/agents')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setBannedList(data);
+          console.log('📋 Loaded', data.length, 'agents from API');
+        }
+      })
+      .catch(err => console.log('Using fallback data:', err));
+  }, []);
   const [muted, setMuted] = useState(false);
   const [audioStarted, setAudioStarted] = useState(false);
   const [audioReady, setAudioReady] = useState(false);
