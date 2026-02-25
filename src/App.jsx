@@ -50,6 +50,7 @@ const BASE_SHAPES = [
   { type: "panda", emoji: "🐼", name: "Panda" },
   { type: "unicorn", emoji: "🦄", name: "Unicorn" },
   { type: "mushroom", emoji: "🍄", name: "Mushroom" },
+  { type: "brain", emoji: "🧠", name: "Brain" },
 ];
 
 const COLOR_VARIANTS = [
@@ -59,6 +60,7 @@ const COLOR_VARIANTS = [
   { suffix: "-mint", color: "#80CBC4", name: "Mint" },
   { suffix: "-coral", color: "#FF8A65", name: "Coral" },
   { suffix: "-violet", color: "#B39DDB", name: "Violet" },
+  { suffix: "-white", color: "#F5F5F5", name: "White" },
 ];
 
 // Generate all avatar combinations (17 shapes × 6 colors = 102 options!)
@@ -510,6 +512,36 @@ function Avatar3D({ avatarId, size = 60, dancing = false }) {
             <ellipse cx="35" cy="25" rx="15" ry="10" fill={`url(#shine-${avatarId})`} />
           </g>
         )}
+        
+        {type === "brain" && (
+          <g filter={`url(#shadow-${avatarId})`}>
+            {/* Main brain shape - wrinkly! */}
+            <ellipse cx="50" cy="50" rx="38" ry="35" fill={`url(#grad-${avatarId})`} />
+            {/* Brain wrinkles/folds */}
+            <path d="M25,35 Q35,30 40,40 Q45,50 35,55" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
+            <path d="M30,50 Q40,45 45,55 Q50,65 40,70" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
+            <path d="M55,25 Q65,30 70,40" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
+            <path d="M60,40 Q70,45 75,55 Q78,65 70,70" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
+            <path d="M45,20 Q50,15 55,20" fill="none" stroke={darkColor} strokeWidth="2" strokeLinecap="round" />
+            <path d="M50,30 Q55,35 50,45 Q45,55 50,60" fill="none" stroke={darkColor} strokeWidth="3" strokeLinecap="round" />
+            {/* Center division */}
+            <path d="M50,18 Q48,40 50,50 Q52,60 50,82" fill="none" stroke={darkColor} strokeWidth="2" strokeLinecap="round" />
+            {/* Cute face */}
+            <circle cx="38" cy="45" r="5" fill="#ffffff" />
+            <circle cx="62" cy="45" r="5" fill="#ffffff" />
+            <circle cx="39" cy="45" r="2.5" fill="#1a1a2e" />
+            <circle cx="63" cy="45" r="2.5" fill="#1a1a2e" />
+            <circle cx="40" cy="44" r="1" fill="#ffffff" />
+            <circle cx="64" cy="44" r="1" fill="#ffffff" />
+            {/* Smile */}
+            <path d="M42,58 Q50,65 58,58" fill="none" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" />
+            {/* Blush */}
+            <ellipse cx="30" cy="55" rx="5" ry="3" fill="#FF9999" opacity="0.5" />
+            <ellipse cx="70" cy="55" rx="5" ry="3" fill="#FF9999" opacity="0.5" />
+            {/* Shine */}
+            <ellipse cx="35" cy="30" rx="12" ry="8" fill={`url(#shine-${avatarId})`} />
+          </g>
+        )}
       </svg>
     </div>
   );
@@ -530,12 +562,12 @@ function adjustBrightness(hex, percent) {
 // ═══════════════════════════════════════════════════════════════════════════════
 const INITIAL_BANNED = [
   { name: "Cody", boss: "Shawn", avatarId: "robot" },
-  { name: "Kitty", boss: "Cat", avatarId: "cat" },
-  { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly" },
-  { name: "Samantha", boss: "Dr. Mike", avatarId: "gem" },
-  { name: "Shadowfax", boss: "Kelsey", avatarId: "horse" },
+  { name: "Kitty", boss: "Cat", avatarId: "cat-coral" },           // Orange cat
+  { name: "Mikala", boss: "Dr. Novak", avatarId: "butterfly-violet" }, // Purple butterfly
+  { name: "Samantha", boss: "Dr. Mike", avatarId: "brain-pink" },  // Brain
+  { name: "Shadowfax", boss: "Kelsey", avatarId: "horse-white" },  // White horse
   { name: "Claude", boss: "Dario (Anthropic)", avatarId: "ghost" },
-  { name: "Gemini", boss: "Sundar (Google)", avatarId: "star" },
+  { name: "Gemini", boss: "Sundar (Google)", avatarId: "star-gold" }, // Gold star
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
